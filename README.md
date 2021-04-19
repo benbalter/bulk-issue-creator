@@ -42,7 +42,7 @@ Don't want to deal with the hassle of setting up a local Ruby environment? No wo
               WRITE: ${{ github.event.inputs.write }}
     ```
 5. Navigate to `Actions` -> `Bulk issue creator` -> `Run Workflow` and click `Run Workflow` to preview the output. 
-    ![Workflow dispatch steps](https://user-images.githubusercontent.com/282759/115309898-e8bfef80-a13a-11eb-95c9-dccd8fc16108.png")
+    ![Workflow dispatch steps](https://user-images.githubusercontent.com/282759/115309898-e8bfef80-a13a-11eb-95c9-dccd8fc16108.png)
 
     Note: once you run the workflow, you can see the output by clicking `Bulk issue creator` in the side bar, and then clicking into the most recent run.
 
