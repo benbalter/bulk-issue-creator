@@ -21,17 +21,17 @@ Bulk opens batches of issues across GitHub repositories based on a template and 
       workflow_dispatch:
         inputs:
           write:
-            description: 'true' to create issues, 'false' to preview output
-            default: false
+            description: "Change to 'true' to create issues, leaave as 'false' to preview output"
+            default: "false"
 
     name: Bulk issue creator
 
     jobs:
-      comment_rollup:
+      bulk_issue_creator:
         runs-on: ubuntu-latest
-        name: Comment rollup
+        name: Bulk Issue Creator
         steps:
-          - name: Rollup comments
+          - name: Create bulk issues
             uses: benbalter/bulk-issue-creator
             env:
               GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
