@@ -11,6 +11,16 @@ csv_path = ENV['CSV_PATH'] || './config/data.csv'
 read_only = ENV['WRITE'] != 'true'
 comment = ENV['comment'] == 'true'
 
+unless File.exist?(csv_path)
+  puts "Expected to find a CSV at #{csv_path}. Please create one."
+  exit 1
+end
+
+unless File.exist?(template_path)
+  puts "Expected to find a Mustache template at #{template_path}. Please create one."
+  exit 1
+end
+
 client = Octokit::Client.new(access_token: ENV['GITHUB_TOKEN'])
 template = File.read(template_path)
 issues = CSV.table(csv_path)
