@@ -47,7 +47,7 @@ Don't want to deal with the hassle of setting up a local Ruby environment? No wo
     Note: once you run the workflow, you can see the output by clicking `Bulk issue creator` in the side bar, and then clicking into the most recent run.
 
     ![Example preview output](https://user-images.githubusercontent.com/282759/115309886-e65d9580-a13a-11eb-8211-7db724c6127a.png)
-6. Repeat step 5, changing the `write` value to `true` in the final dialog to create issues.
+6. Repeat step 5, changing the `false` text input to `true` in the final dialog to create issues.
 
 ## Setup
 
