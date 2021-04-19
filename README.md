@@ -2,6 +2,16 @@
 
 Bulk opens batches of issues across GitHub repositories based on a template and CSV of values. Think of it like "mail merge" for GitHub issues.
 
+## How it works
+
+1. You create a CSV of repositories where you'd like issues opened and any fill-in fields you'd like to include in the resulting issues. It might look something like this:
+   ![Example CSV](https://user-images.githubusercontent.com/282759/115310271-86b3ba00-a13b-11eb-9fab-b5a7ac613c42.png)
+2. You create a template of what you'd like to use as the basis for the resulting issue body. You can even reference per-issue fill-in fields. If we wanted to reference the `name` field in the example above, it might look something like this:
+   ![Example template](https://user-images.githubusercontent.com/282759/115310395-c11d5700-a13b-11eb-91b5-e1b74beda70d.png)
+3. You run the bulk issue creator script (either locally or via GitHub Actions - see below)
+4. Customized issues are created on your behalf for every row you defined in the CSV.
+5. Profit! :tada:
+
 ## Running locally
 
 1. Clone this repository locally
