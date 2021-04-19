@@ -5,15 +5,17 @@ Bulk opens batches of issues across GitHub repositories based on a template and 
 ## Running locally
 
 1. Clone this repository locally
-2. Follow the "Setup" instructions below to add the CSV and template to the repository.
+2. Follow [the "Setup" instructions below](#setup) to add the CSV and template to the repository.
 3. Export the personal access token you create as the `GITHUB_TOKEN` environmental variable, or add it to a `.env` file in the root of the repository.
 4. Run `bundle exec bulk-issue-creator.rb` to preview the output
 5. Run `WRITE=true bundle exec bulk-issue-creator.rb` to create the issues.
 
 ## Running via GitHub actions
 
+Don't want to deal with the hassle of setting up a local Ruby environment? No worries. With a little copy/paste can use GitHub actions to open issues *from the cloud!*:
+
 1. Create a new repository (public or private)
-2. Follow the "Setup" instructions below to add the CSV and template to the repository.
+2. Follow [the "Setup" instructions below](#setup) to add the CSV and template to the repository.
 3. Store the personal access token you create as the `PERSONAL_ACCESS_TOKEN` [Actions Secret](https://docs.github.com/en/actions/reference/encrypted-secrets) within the repository settings
 4. Create a `.github/workflows/bulk-issue-creator.yml` file with the following contents:
     ```yml
@@ -34,7 +36,7 @@ Bulk opens batches of issues across GitHub repositories based on a template and 
           - name: Checkout template and data
             uses: actions/checkout@v2
           - name: Create bulk issues
-            uses: benbalter/bulk-issue-creator
+            uses: benbalter/bulk-issue-creator@main
             env:
               GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
               WRITE: ${{ github.event.inputs.write }}
@@ -61,3 +63,7 @@ Bulk opens batches of issues across GitHub repositories based on a template and 
 
 * You can customize the source mustache template and CSV path by setting the `TEMPLATE_PATH` and `CSV_PATH` environmental variables.
 * Prefer to post a comment to an existing issue? Instead of the `title` column, add an `issue_number` column to your CSV with the issue's number (from the URL or next to the issue title) and pass the `COMMENT=true` environmental variable.
+
+### Development status
+
+Alpha - use at your own risk.
