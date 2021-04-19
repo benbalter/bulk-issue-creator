@@ -31,13 +31,15 @@ Bulk opens batches of issues across GitHub repositories based on a template and 
         runs-on: ubuntu-latest
         name: Bulk Issue Creator
         steps:
+          - name: Checkout template and data
+            uses: actions/checkout@v2
           - name: Create bulk issues
             uses: benbalter/bulk-issue-creator
             env:
               GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
               WRITE: ${{ github.event.inputs.write }}
     ```
-5. Navigate to `Actions` -> `Bulk issue creator` -> `Run Workflow` and click `Run Workflow` to preview the output.
+5. Navigate to `Actions` -> `Bulk issue creator` -> `Run Workflow` and click `Run Workflow` to preview the output. Note: once you run the workflow, you can see the output by clicking `Bulk issue creator` in the side bar, and then clicking into the most recent run.
 6. Repeat step 5, changing the `write` value to `true` in the final dialog to create issues.
 
 ## Setup
