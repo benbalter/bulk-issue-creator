@@ -41,7 +41,12 @@ Don't want to deal with the hassle of setting up a local Ruby environment? No wo
               GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
               WRITE: ${{ github.event.inputs.write }}
     ```
-5. Navigate to `Actions` -> `Bulk issue creator` -> `Run Workflow` and click `Run Workflow` to preview the output. Note: once you run the workflow, you can see the output by clicking `Bulk issue creator` in the side bar, and then clicking into the most recent run.
+5. Navigate to `Actions` -> `Bulk issue creator` -> `Run Workflow` and click `Run Workflow` to preview the output. 
+    ![Workflow dispatch steps](https://user-images.githubusercontent.com/282759/115309898-e8bfef80-a13a-11eb-95c9-dccd8fc16108.png")
+
+    Note: once you run the workflow, you can see the output by clicking `Bulk issue creator` in the side bar, and then clicking into the most recent run.
+
+    ![Example preview output](https://user-images.githubusercontent.com/282759/115309886-e65d9580-a13a-11eb-8211-7db724c6127a.png)
 6. Repeat step 5, changing the `write` value to `true` in the final dialog to create issues.
 
 ## Setup
