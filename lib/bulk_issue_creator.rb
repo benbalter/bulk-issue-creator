@@ -14,11 +14,11 @@ module BulkIssueCreator
 
   class << self
     def template_path
-      ENV['TEMPLATE_PATH'] || File.expand_path('../config/template.md.mustache', __dir__)
+      ENV['TEMPLATE_PATH'] || File.expand_path('./config/template.md.mustache', Dir.pwd)
     end
 
     def csv_path
-      ENV['CSV_PATH'] || File.expand_path('../config/data.csv', __dir__)
+      ENV['CSV_PATH'] || File.expand_path('./config/data.csv', Dir.pwd)
     end
 
     def read_only?
