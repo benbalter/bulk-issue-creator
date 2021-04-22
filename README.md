@@ -75,7 +75,7 @@ Don't want to deal with the hassle of setting up a local Ruby environment? No wo
 
 ### Templating
 
-Templates (and issue titles) support the [Mustache syntax](https://mustache.github.io/mustache.5.html). 
+Templates (and issue titles) support the [Mustache syntax](https://mustache.github.io/mustache.5.html). Field names in the CSV should be lower case, and should use `_`s to separate multiple words `like_this`, instead of spaces.
 
 ### Advanced setup
 
