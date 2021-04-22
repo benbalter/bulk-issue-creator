@@ -32,7 +32,7 @@ end
 
 issues.each do |issue|
   repository = issue[:repository]
-  title = issue[:title]
+  title = Mustache.render(issue[:title], issue)
   labels = issue[:labels]
   issue_number = issue[:issue_number]
   body = Mustache.render(template, issue)
