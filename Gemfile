@@ -2,8 +2,16 @@
 
 source 'https://rubygems.org'
 
+gem 'activesupport'
 gem 'dotenv'
 gem 'mustache'
 gem 'octokit'
-gem 'rubocop'
-gem 'rubocop-performance'
+
+group :development do
+  gem 'pry'
+  gem 'rspec'
+  gem 'rubocop'
+  gem 'rubocop-performance'
+  gem 'rubocop-rspec'
+  gem 'webmock'
+end

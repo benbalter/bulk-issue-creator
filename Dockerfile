@@ -3,6 +3,7 @@ FROM ruby:2.7
 COPY Gemfile ./
 RUN bundle install
 
-COPY bulk-issue-creator.rb /bulk-issue-creator.rb
+COPY lib/ /lib/
+COPY script/run /script/run
 
-ENTRYPOINT ["/bulk-issue-creator.rb"]
+ENTRYPOINT ["/script/run"]

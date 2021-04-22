@@ -1,8 +1,16 @@
-require: rubocop-performance
+inherit_from: .rubocop_todo.yml
 
+require: 
+  - rubocop-performance
+  - rubocop-rspec
+  
 AllCops:
   NewCops: enable
 
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/*'
 
-Naming/FileName:
-  Enabled: false
+RSpec/ExampleLength:
+  Exclude:
+    - 'spec/*'

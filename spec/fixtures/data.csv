@@ -1,0 +1,3 @@
+repository,title,project,labels,issue_number
+benbalter/gman,Update {{project}},GMan,"Red,Blue",1
+benbalter/jekyll-auth,Update {{project}},Jekyll Auth,"Green,Blue",2

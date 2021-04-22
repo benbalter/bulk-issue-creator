@@ -17,8 +17,8 @@ Bulk opens batches of issues across GitHub repositories based on a template and 
 1. Clone this repository locally
 2. Follow [the "Setup" instructions below](#setup) to add the CSV and template to the repository.
 3. Export the personal access token you create as the `GITHUB_TOKEN` environmental variable, or add it to a `.env` file in the root of the repository.
-4. Run `bundle exec bulk-issue-creator.rb` to preview the output
-5. Run `WRITE=true bundle exec bulk-issue-creator.rb` to create the issues.
+4. Run `bundle exec script/run` to preview the output
+5. Run `WRITE=true bundle exec script/run` to create the issues.
 
 ## Running via GitHub actions
 
