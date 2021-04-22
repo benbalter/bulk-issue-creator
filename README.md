@@ -61,7 +61,7 @@ Don't want to deal with the hassle of setting up a local Ruby environment? No wo
 
 ## Setup
 
-1. Create a CSV file in `./config/data.csv`. The CSV must have columns for `repository` and `title`. It can optionally have a `labels` column, with a comma-separated list of labels you'd like added to the issue. You can also add any other columns you would like, which will be available to the template. It should look something like this:
+1. Create a CSV file in `./config/data.csv`. The CSV must have columns for `repository` and `title` (case sensitive). You can also add any other columns you would like, which will be available to the template. It should look something like this:
     ```csv
     repository,title,project,labels
     benbalter/gman,Update GMan,GMan,"Red,Blue"
@@ -72,13 +72,17 @@ Don't want to deal with the hassle of setting up a local Ruby environment? No wo
     Hey there! It looks like it's time to update {{project}}!
     ```
 3. [Create a personal access token](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) with `repo` scope.
-   
+
+### Templating
+
+Templates (and issue titles) support the [Mustache syntax](https://mustache.github.io/mustache.5.html). 
 
 ### Advanced setup
 
 * You can customize the source mustache template and CSV path by setting the `TEMPLATE_PATH` and `CSV_PATH` environmental variables.
 * Prefer to post a comment to an existing issue? Instead of the `title` column, add an `issue_number` column to your CSV with the issue's number (from the URL or next to the issue title) and pass the `COMMENT=true` environmental variable.
-
+* You can add a `labels` column to the CSV, with a comma-separated list of labels you'd like added to the issue.
+  
 ### Development status
 
 Alpha - use at your own risk.
