@@ -32,11 +32,21 @@ def stub_issue_request(nwo, name, labels)
     body: "Hello #{name}!",
     labels: labels
   }
-  stub_request(:post, url).with(body: body).to_return(status: 200)
+  response = { html_url: 'https://github.com/benbalter/bulk-issue-creator/issues/1' }.to_json
+  stub_request(:post, url).with(body: body).to_return(
+    status: 200,
+    body: response,
+    headers: { 'Content-Type' => 'application/json' }
+  )
 end
 
 def stub_comment_request(nwo, name, number)
   url = "https://api.github.com/repos/#{nwo}/issues/#{number}/comments"
   body = { body: "Hello #{name}!" }
-  stub_request(:post, url).with(body: body).to_return(status: 200)
+  response = { html_url: 'https://github.com/benbalter/bulk-issue-creator/issues/1#commment-1' }.to_json
+  stub_request(:post, url).with(body: body).to_return(
+    status: 200,
+    body: response,
+    headers: { 'Content-Type' => 'application/json' }
+  )
 end
