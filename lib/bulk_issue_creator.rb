@@ -60,13 +60,15 @@ module BulkIssueCreator
 
     def create_issues
       issues.each do |issue|
-        client.create_issue(issue.repository.strip, issue.title, issue.body, { labels: issue.labels })
+        result = client.create_issue(issue.repository.strip, issue.title, issue.body, { labels: issue.labels })
+        puts "Created #{result.html_url}"
       end
     end
 
     def create_comments
       issues.each do |issue|
-        client.add_comment(issue.repository.strip, issue.issue_number, issue.body)
+        result = client.add_comment(issue.repository.strip, issue.issue_number, issue.body)
+        puts "Created #{result.html_url}"
       end
     end
 
