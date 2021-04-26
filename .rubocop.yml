@@ -9,8 +9,8 @@ AllCops:
 
 Metrics/BlockLength:
   Exclude:
-    - 'spec/*'
+    - 'spec/**/*'
 
 RSpec/ExampleLength:
   Exclude:
-    - 'spec/*'
+    - 'spec/**/*'

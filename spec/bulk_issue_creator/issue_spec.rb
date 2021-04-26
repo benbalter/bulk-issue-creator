@@ -32,4 +32,8 @@ RSpec.describe BulkIssueCreator::Issue do
   it 'returns a hash' do
     expect(issue.to_h).to eql(hash)
   end
+
+  it 'doesnt err with no labels' do
+    expect(issue.labels).to be_nil
+  end
 end

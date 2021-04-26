@@ -18,6 +18,10 @@ module BulkIssueCreator
       Mustache.render(data[:title], data)
     end
 
+    def labels
+      @data[:labels]
+    end
+
     def method_missing(meth, *arguments, &block)
       return data[meth] if data.key?(meth)
 
