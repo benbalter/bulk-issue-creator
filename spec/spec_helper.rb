@@ -27,16 +27,10 @@ end
 
 def stub_issue_request(nwo, name, labels)
   url = "https://api.github.com/repos/#{nwo}/issues"
-  body = {
-    title: "Update #{name}",
-    body: "Hello #{name}!",
-    labels: labels
-  }
+  body = { title: "Update #{name}", body: "Hello #{name}!", labels: labels }
   response = { html_url: 'https://github.com/benbalter/bulk-issue-creator/issues/1' }.to_json
   stub_request(:post, url).with(body: body).to_return(
-    status: 200,
-    body: response,
-    headers: { 'Content-Type' => 'application/json' }
+    status: 200, body: response, headers: { 'Content-Type' => 'application/json' }
   )
 end
 
@@ -45,8 +39,6 @@ def stub_comment_request(nwo, name, number)
   body = { body: "Hello #{name}!" }
   response = { html_url: 'https://github.com/benbalter/bulk-issue-creator/issues/1#commment-1' }.to_json
   stub_request(:post, url).with(body: body).to_return(
-    status: 200,
-    body: response,
-    headers: { 'Content-Type' => 'application/json' }
+    status: 200, body: response, headers: { 'Content-Type' => 'application/json' }
   )
 end
