@@ -81,8 +81,11 @@ RSpec.describe BulkIssueCreator do
     it "doesn't create issues by deafult" do
       with_env('TEMPLATE_PATH', fixture_path('template.md.mustache')) do
         with_env('CSV_PATH', fixture_path('data.csv')) do
+          stub_repo_request('benbalter/gman')
+          stub_repo_request('benbalter/jekyll-auth')
+
           creator.run
-          expect(a_request(:any, 'github.com')).not_to have_been_made
+          expect(a_request(:post, 'github.com')).not_to have_been_made
         end
       end
     end
@@ -115,6 +118,18 @@ RSpec.describe BulkIssueCreator do
               expect(jekyll_auth_stub).to have_been_made
             end
           end
+        end
+      end
+    end
+
+    it 'validates that repositories exist' do
+      with_env('TEMPLATE_PATH', fixture_path('template.md.mustache')) do
+        with_env('CSV_PATH', fixture_path('data.csv')) do
+          stub_repo_request('benbalter/gman')
+          stub_repo_request('benbalter/jekyll-auth', 404)
+
+          msg = 'Repository benbalter/jekyll-auth is invalid'
+          expect { creator.run }.to raise_error BulkIssueCreator::InvalidRepoError, msg
         end
       end
     end

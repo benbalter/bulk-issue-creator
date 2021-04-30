@@ -12,6 +12,8 @@ require_relative './bulk_issue_creator/issue'
 module BulkIssueCreator
   class MissingFileError < ArgumentError; end
 
+  class InvalidRepoError < ArgumentError; end
+
   class << self
     def template_path
       ENV['TEMPLATE_PATH'] || File.expand_path('./config/template.md.mustache', Dir.pwd)
@@ -54,6 +56,10 @@ module BulkIssueCreator
       puts "The following #{comment? ? 'comments' : 'issues'} would be created:\n\n"
 
       issues.each do |issue|
+        unless client.repository?(issue.repository.strip)
+          raise InvalidRepoError, "Repository #{issue.repository.strip} is invalid"
+        end
+
         puts YAML.dump(issue.to_h.stringify_keys)
       end
     end

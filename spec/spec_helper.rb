@@ -42,3 +42,8 @@ def stub_comment_request(nwo, name, number)
     status: 200, body: response, headers: { 'Content-Type' => 'application/json' }
   )
 end
+
+def stub_repo_request(nwo, status = 200)
+  url = "https://api.github.com/repos/#{nwo}"
+  stub_request(:get, url).to_return(status: status)
+end
