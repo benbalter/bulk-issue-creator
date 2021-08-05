@@ -15,7 +15,7 @@ module BulkIssueCreator
     end
 
     def title
-      Mustache.render(data[:title], data)
+      Mustache.render(data[:title].to_s, data)
     end
 
     def labels
