@@ -66,7 +66,8 @@ module BulkIssueCreator
 
     def create_issues
       issues.each do |issue|
-        result = client.create_issue(issue.repository.strip, issue.title, issue.body, { labels: issue.labels })
+        options = { labels: issue.labels, assignees: issue.assignees }
+        result = client.create_issue(issue.repository.strip, issue.title, issue.body, options)
         puts "Created #{result.html_url}"
       end
     end

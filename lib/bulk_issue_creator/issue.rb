@@ -22,6 +22,10 @@ module BulkIssueCreator
       @data[:labels]
     end
 
+    def assignees
+      @data[:assignees] ? @data[:assignees].split(',') : []
+    end
+
     def method_missing(meth, *arguments, &block)
       return data[meth] if data.key?(meth)
 
@@ -35,7 +39,9 @@ module BulkIssueCreator
     def to_h
       data.merge({
                    title: title,
-                   body: body
+                   body: body,
+                   repository: repository,
+                   assignees: assignees
                  })
     end
   end
