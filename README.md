@@ -1,6 +1,6 @@
 # GitHub bulk issue creator
 
-Bulk opens batches of issues across GitHub repositories based on a template and CSV of values. Think of it like "mail merge" for GitHub issues.
+Bulk opens batches of issues (or posts comments) across GitHub repositories based on a template and CSV of values. Think of it like "mail merge" for GitHub issues.
 
 ## How it works
 
