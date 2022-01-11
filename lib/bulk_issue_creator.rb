@@ -69,6 +69,7 @@ module BulkIssueCreator
         options = { labels: issue.labels, assignees: issue.assignees }
         result = client.create_issue(issue.repository.strip, issue.title, issue.body, options)
         puts "Created #{result.html_url}"
+        sleep 1
       end
     end
 
@@ -76,6 +77,7 @@ module BulkIssueCreator
       issues.each do |issue|
         result = client.add_comment(issue.repository.strip, issue.issue_number, issue.body)
         puts "Created #{result.html_url}"
+        sleep 1
       end
     end
 
