@@ -120,9 +120,10 @@ RSpec.describe BulkIssueCreator do
 
         with_env('WRITE', 'true') do
           creator.run
-          expect(gman_stub).to have_been_made
-          expect(jekyll_auth_stub).to have_been_made
         end
+
+        expect(gman_stub).to have_been_made
+        expect(jekyll_auth_stub).to have_been_made
       end
     end
 
