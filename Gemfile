@@ -6,6 +6,7 @@ gem 'activesupport'
 gem 'dotenv'
 gem 'mustache'
 gem 'octokit'
+gem 'retryable'
 
 group :development do
   gem 'pry'

@@ -5,6 +5,7 @@ require 'dotenv/load'
 require 'mustache'
 require 'csv'
 require 'yaml'
+require 'logger'
 require 'active_support/core_ext/hash/keys'
 require_relative './bulk_issue_creator/issue'
 
@@ -31,6 +32,10 @@ module BulkIssueCreator
       ENV['COMMENT'] == 'true'
     end
 
+    def logger
+      @logger ||= Logger.new(STDOUT)
+    end
+
     def client
       @client ||= Octokit::Client.new(access_token: ENV['GITHUB_TOKEN'])
     end
@@ -52,15 +57,15 @@ module BulkIssueCreator
     end
 
     def preview_output
-      puts 'Running in read-only mode. Pass `WRITE=true` environmental variable to create issues.'
-      puts "The following #{comment? ? 'comments' : 'issues'} would be created:\n\n"
+      logger.info 'Running in read-only mode. Pass `WRITE=true` environmental variable to create issues.'
+      logger.info "The following #{comment? ? 'comments' : 'issues'} would be created:\n\n"
 
       issues.each do |issue|
         unless client.repository?(issue.repository.strip)
           raise InvalidRepoError, "Repository #{issue.repository.strip} is invalid"
         end
 
-        puts YAML.dump(issue.to_h.stringify_keys)
+        logger.info YAML.dump(issue.to_h.stringify_keys)
       end
     end
 
@@ -68,7 +73,7 @@ module BulkIssueCreator
       issues.each do |issue|
         options = { labels: issue.labels, assignees: issue.assignees }
         result = client.create_issue(issue.repository.strip, issue.title, issue.body, options)
-        puts "Created #{result.html_url}"
+        logger.info "Created #{result.html_url}"
         sleep 1
       end
     end
@@ -76,7 +81,7 @@ module BulkIssueCreator
     def create_comments
       issues.each do |issue|
         result = client.add_comment(issue.repository.strip, issue.issue_number, issue.body)
-        puts "Created #{result.html_url}"
+        logger.info "Created #{result.html_url}"
         sleep 1
       end
     end
