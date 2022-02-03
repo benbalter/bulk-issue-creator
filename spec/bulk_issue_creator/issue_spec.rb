@@ -3,13 +3,16 @@
 RSpec.describe BulkIssueCreator::Issue do
   subject(:issue) { described_class.new(data, template) }
 
-  let(:data) { { title: 'Update {{project}}', project: 'Test' } }
+  let(:data) { { title: 'Update {{project}}', project: 'Test', repository: 'foo/bar' } }
   let(:template) { File.read fixture_path('template.md.mustache') }
+  let(:assignees) { [] }
   let(:hash) do
     {
+      assignees: assignees,
       title: 'Update Test',
       project: 'Test',
-      body: 'Hello Test!'
+      body: 'Hello Test!',
+      repository: 'foo/bar'
     }
   end
 
@@ -35,5 +38,25 @@ RSpec.describe BulkIssueCreator::Issue do
 
   it 'doesnt err with no labels' do
     expect(issue.labels).to be_nil
+  end
+
+  it 'returns assignees' do
+    expect(issue.assignees).to eql(assignees)
+  end
+
+  context 'with assignees' do
+    let(:data) { { title: 'Update {{project}}', project: 'Test', repository: 'foo/bar', assignees: 'foo' } }
+
+    it 'returns assignees' do
+      expect(issue.assignees).to eql(['foo'])
+    end
+  end
+
+  context 'with labels' do
+    let(:data) { { title: 'Update {{project}}', project: 'Test', repository: 'foo/bar', labels: 'foo' } }
+
+    it 'returns assignees' do
+      expect(issue.labels).to eql('foo')
+    end
   end
 end

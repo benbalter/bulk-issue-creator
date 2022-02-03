@@ -3,6 +3,8 @@
 RSpec.describe BulkIssueCreator do
   subject(:creator) { described_class }
 
+  before { ENV['WRITE'] = nil }
+
   it 'uses the default template path' do
     expected = File.expand_path('../config/template.md.mustache', __dir__)
     expect(creator.template_path).to eql(expected)
@@ -78,7 +80,7 @@ RSpec.describe BulkIssueCreator do
       end
     end
 
-    it "doesn't create issues by deafult" do
+    it "doesn't create issues by default" do
       with_env('TEMPLATE_PATH', fixture_path('template.md.mustache')) do
         with_env('CSV_PATH', fixture_path('data.csv')) do
           stub_repo_request('benbalter/gman')

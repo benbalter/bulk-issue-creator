@@ -61,7 +61,7 @@ Don't want to deal with the hassle of setting up a local Ruby environment? No wo
 
 ## Setup
 
-1. Create a CSV file in `./config/data.csv`. The CSV must have columns for `repository` and `title` (case sensitive). You can also add any other columns you would like, which will be available to the template. It should look something like this:
+1. Create a CSV file in `./config/data.csv`. The CSV must have columns for `repository` and `title` (for issues) or `issue_number` (for comments, all field names being case sensitive). You can also add any other columns you would like, which will be available to the template. It should look something like this:
     ```csv
     repository,title,project,labels
     benbalter/gman,Update GMan,GMan,"Red,Blue"

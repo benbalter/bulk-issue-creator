@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 
-require 'octokit'
-require 'dotenv/load'
-require 'mustache'
-require 'csv'
-require 'yaml'
-require 'logger'
 require 'active_support/core_ext/hash/keys'
+require 'csv'
+require 'dotenv/load'
+require 'logger'
+require 'mustache'
+require 'octokit'
+require 'retryable'
+require 'yaml'
 require_relative './bulk_issue_creator/issue'
 
 # Bulk opens batches of issues across GitHub repositories based on a template and CSV of values
 module BulkIssueCreator
   class MissingFileError < ArgumentError; end
-
   class InvalidRepoError < ArgumentError; end
 
   class << self
@@ -30,10 +30,6 @@ module BulkIssueCreator
 
     def comment?
       ENV['COMMENT'] == 'true'
-    end
-
-    def logger
-      @logger ||= Logger.new(STDOUT)
     end
 
     def client
@@ -72,7 +68,9 @@ module BulkIssueCreator
     def create_issues
       issues.each do |issue|
         options = { labels: issue.labels, assignees: issue.assignees }
-        result = client.create_issue(issue.repository.strip, issue.title, issue.body, options)
+        result = Retryable.retryable(**retriable_options) do
+          client.create_issue(issue.repository.strip, issue.title, issue.body, options)
+        end
         logger.info "Created #{result.html_url}"
         sleep 1
       end
@@ -80,7 +78,9 @@ module BulkIssueCreator
 
     def create_comments
       issues.each do |issue|
-        result = client.add_comment(issue.repository.strip, issue.issue_number, issue.body)
+        result = Retryable.retryable(**retriable_options) do
+          client.add_comment(issue.repository.strip, issue.issue_number, issue.body)
+        end
         logger.info "Created #{result.html_url}"
         sleep 1
       end
@@ -96,6 +96,27 @@ module BulkIssueCreator
       else
         create_issues
       end
+    end
+
+    private
+
+    def logger
+      @logger ||= Logger.new($stdout)
+    end
+
+    def logger_method
+      @logger_method ||= lambda do |retries, exception|
+        backtrace = exception.backtrace.first(5).join(' | ')
+        logger.warn("[Attempt ##{retries}] Retrying because [#{exception.class} - #{exception.message}]: #{backtrace}")
+      end
+    end
+
+    def retriable_options
+      @retriable_options ||= {
+        tries: 5,
+        sleep: ->(n) { 3**n },
+        log_method: logger_method
+      }
     end
   end
 end
