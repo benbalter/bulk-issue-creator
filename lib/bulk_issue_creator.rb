@@ -8,6 +8,7 @@ require 'mustache'
 require 'octokit'
 require 'retryable'
 require 'yaml'
+require 'faraday-http-cache'
 require_relative './bulk_issue_creator/issue'
 
 # Bulk opens batches of issues across GitHub repositories based on a template and CSV of values
@@ -72,7 +73,6 @@ module BulkIssueCreator
           client.create_issue(issue.repository.strip, issue.title, issue.body, options)
         end
         logger.info "Created #{result.html_url}"
-        sleep 1
       end
     end
 
@@ -82,7 +82,6 @@ module BulkIssueCreator
           client.add_comment(issue.repository.strip, issue.issue_number, issue.body)
         end
         logger.info "Created #{result.html_url}"
-        sleep 1
       end
     end
 
@@ -106,17 +105,23 @@ module BulkIssueCreator
 
     def logger_method
       @logger_method ||= lambda do |retries, exception|
-        backtrace = exception.backtrace.first(5).join(' | ')
-        logger.warn("[Attempt ##{retries}] Retrying because [#{exception.class} - #{exception.message}]: #{backtrace}")
+        logger.warn("[Attempt ##{retries}] Retrying because [#{exception.class} - #{exception.message}]")
       end
     end
 
     def retriable_options
       @retriable_options ||= {
         tries: 5,
-        sleep: ->(n) { 3**n },
+        sleep: ->(n) { 4**n },
         log_method: logger_method
       }
     end
   end
 end
+
+stack = Faraday::RackBuilder.new do |builder|
+  builder.use Faraday::HttpCache, serializer: Marshal, shared_cache: false
+  builder.use Octokit::Response::RaiseError
+  builder.adapter Faraday.default_adapter
+end
+Octokit.middleware = stack
