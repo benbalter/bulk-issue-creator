@@ -1,0 +1,45 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'bundler/setup'
+require 'thor'
+require 'fileutils'
+require 'bulk_issue_creator'
+
+# CLI for interacting with BulkIssueCreator
+class BulkIssueCreatorCLI < Thor
+  package_name 'Bulk Issue Creator'
+
+  desc 'create', 'Run the bulk issue creator to create issues or comments'
+  option :write, type: :boolean, default: false, desc: 'Write issues to GitHub, defaults to preview only'
+  option :comment, type: :boolean, default: false, desc: 'Create comments instead of issues'
+  option :template_path, type: :string, default: nil, desc: 'Path to the template file'
+  option :csv_path, type: :string, default: nil, desc: 'Path to the CSV file'
+  option :github_token, type: :string, default: nil, desc: 'GitHub Token for authenticating with GitHub'
+  def create
+    creator = BulkIssueCreator.new(options)
+    creator.run
+  end
+
+  desc 'init', 'Initialize the Bulk Issue Creator config folder with template and data file'
+  option :path, type: :string, default: nil, desc: 'Path at which to generate the config directory'
+  def init
+    path = File.expand_path((options[:path] || '../config'), __dir__)
+
+    unless Dir.exist? path
+      FileUtils.mkdir_p path
+      puts "Created #{path}"
+    end
+
+    ['template.md.mustache', 'data.csv'].each do |file|
+      next if File.exist? "#{path}/#{file}"
+
+      FileUtils.touch "#{path}/#{file}"
+      puts "Created #{path}/#{file}"
+    end
+  end
+
+  default_task :create
+end
+
+BulkIssueCreatorCLI.start(ARGV)

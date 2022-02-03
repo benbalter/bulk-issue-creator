@@ -1,19 +1,31 @@
 # frozen_string_literal: true
 
 RSpec.describe BulkIssueCreator do
-  subject(:creator) { described_class }
+  subject(:creator) { described_class.new(options) }
 
-  before { ENV['WRITE'] = nil }
+  let(:template_path) { nil }
+  let(:csv_path) { nil }
+  let(:write) { nil }
+  let(:comment) { nil }
+  let(:options) do
+    {
+      template_path: template_path,
+      csv_path: csv_path,
+      write: write,
+      comment: comment
+    }
+  end
 
   it 'uses the default template path' do
     expected = File.expand_path('../config/template.md.mustache', __dir__)
     expect(creator.template_path).to eql(expected)
   end
 
-  it 'respects env template path' do
-    expected = File.expand_path('../config/other_template.md.mustache', __dir__)
-    with_env('TEMPLATE_PATH', expected) do
-      expect(creator.template_path).to eql(expected)
+  context 'with template path' do
+    let(:template_path) { File.expand_path('../config/other_template.md.mustache', __dir__) }
+
+    it 'respects template path' do
+      expect(creator.template_path).to eql(template_path)
     end
   end
 
@@ -22,10 +34,11 @@ RSpec.describe BulkIssueCreator do
     expect(creator.csv_path).to eql(expected)
   end
 
-  it 'respects env CVV path' do
-    expected = File.expand_path('../config/other_data.csv', __dir__)
-    with_env('CSV_PATH', expected) do
-      expect(creator.csv_path).to eql(expected)
+  context 'with CSV path' do
+    let(:csv_path) { File.expand_path('../config/other_data.csv', __dir__) }
+
+    it 'respects env CVV path' do
+      expect(creator.csv_path).to eql(csv_path)
     end
   end
 
@@ -33,8 +46,10 @@ RSpec.describe BulkIssueCreator do
     expect(creator).to be_read_only
   end
 
-  it 'can write' do
-    with_env('WRITE', 'true') do
+  context 'when writing' do
+    let(:write) { true }
+
+    it 'can write' do
       expect(creator).not_to be_read_only
     end
   end
@@ -43,97 +58,94 @@ RSpec.describe BulkIssueCreator do
     expect(creator).not_to be_comment
   end
 
-  it 'can comment' do
-    with_env('COMMENT', 'true') do
+  context 'when commenting' do
+    let(:comment) { true }
+
+    it 'can comment' do
       expect(creator).to be_comment
     end
   end
 
   it 'inits the client' do
-    expect(creator.client).to be_a(Octokit::Client)
+    expect(creator.send(:client)).to be_a(Octokit::Client)
   end
 
   it 'errors for missing path' do
-    expect { creator.ensure_path_exists('_missing') }.to raise_error BulkIssueCreator::MissingFileError
+    expect { creator.send(:ensure_path_exists, '_missing') }.to raise_error BulkIssueCreator::MissingFileError
   end
 
   context 'with fixtures' do
+    let(:template_path) { fixture_path('template.md.mustache') }
+    let(:csv_path) { fixture_path('data.csv') }
+
     it 'reads the template' do
       expected = File.read(fixture_path('template.md.mustache'))
-      with_env('TEMPLATE_PATH', fixture_path('template.md.mustache')) do
-        expect(creator.template).to eql(expected)
-      end
+      expect(creator.template).to eql(expected)
     end
 
     it 'reads the data' do
       expected = CSV.table(fixture_path('data.csv')).to_a
-      with_env('CSV_PATH', fixture_path('data.csv')) do
-        expect(creator.table.to_a).to eql(expected)
-      end
+      expect(creator.send(:table).to_a).to eql(expected)
     end
 
     it 'loads issues' do
-      with_env('TEMPLATE_PATH', fixture_path('template.md.mustache')) do
-        with_env('CSV_PATH', fixture_path('data.csv')) do
-          expect(creator.issues.first.title).to eql('Update GMan')
-        end
-      end
+      expect(creator.issues.first.title).to eql('Update GMan')
     end
 
     it "doesn't create issues by default" do
-      with_env('TEMPLATE_PATH', fixture_path('template.md.mustache')) do
-        with_env('CSV_PATH', fixture_path('data.csv')) do
-          stub_repo_request('benbalter/gman')
-          stub_repo_request('benbalter/jekyll-auth')
+      stub_repo_request('benbalter/gman')
+      stub_repo_request('benbalter/jekyll-auth')
 
+      creator.run
+      expect(a_request(:post, 'github.com')).not_to have_been_made
+    end
+
+    context 'when writing issues' do
+      let(:write) { true }
+
+      it 'creates issues' do
+        gman_stub = stub_issue_request('benbalter/gman', 'GMan', %w[Red Blue])
+        jekyll_auth_stub = stub_issue_request('benbalter/jekyll-auth', 'Jekyll Auth', %w[Green Blue])
+
+        creator.run
+        expect(gman_stub).to have_been_made
+        expect(jekyll_auth_stub).to have_been_made
+      end
+    end
+
+    context 'when passed write via ENV var' do
+      it 'creates issues' do
+        gman_stub = stub_issue_request('benbalter/gman', 'GMan', %w[Red Blue])
+        jekyll_auth_stub = stub_issue_request('benbalter/jekyll-auth', 'Jekyll Auth', %w[Green Blue])
+
+        with_env('WRITE', 'true') do
           creator.run
-          expect(a_request(:post, 'github.com')).not_to have_been_made
+          expect(gman_stub).to have_been_made
+          expect(jekyll_auth_stub).to have_been_made
         end
       end
     end
 
-    it 'creates issues' do
-      gman_stub = stub_issue_request('benbalter/gman', 'GMan', %w[Red Blue])
-      jekyll_auth_stub = stub_issue_request('benbalter/jekyll-auth', 'Jekyll Auth', %w[Green Blue])
+    context 'when writing comments' do
+      let(:write) { true }
+      let(:comment) { true }
 
-      with_env('TEMPLATE_PATH', fixture_path('template.md.mustache')) do
-        with_env('CSV_PATH', fixture_path('data.csv')) do
-          with_env('WRITE', 'true') do
-            creator.run
-            expect(gman_stub).to have_been_made
-            expect(jekyll_auth_stub).to have_been_made
-          end
-        end
-      end
-    end
+      it 'creates comments' do
+        gman_stub = stub_comment_request('benbalter/gman', 'GMan', 1)
+        jekyll_auth_stub = stub_comment_request('benbalter/jekyll-auth', 'Jekyll Auth', 2)
 
-    it 'creates comments' do
-      gman_stub = stub_comment_request('benbalter/gman', 'GMan', 1)
-      jekyll_auth_stub = stub_comment_request('benbalter/jekyll-auth', 'Jekyll Auth', 2)
-
-      with_env('TEMPLATE_PATH', fixture_path('template.md.mustache')) do
-        with_env('CSV_PATH', fixture_path('data.csv')) do
-          with_env('WRITE', 'true') do
-            with_env('COMMENT', 'true') do
-              creator.run
-              expect(gman_stub).to have_been_made
-              expect(jekyll_auth_stub).to have_been_made
-            end
-          end
-        end
+        creator.run
+        expect(gman_stub).to have_been_made
+        expect(jekyll_auth_stub).to have_been_made
       end
     end
 
     it 'validates that repositories exist' do
-      with_env('TEMPLATE_PATH', fixture_path('template.md.mustache')) do
-        with_env('CSV_PATH', fixture_path('data.csv')) do
-          stub_repo_request('benbalter/gman')
-          stub_repo_request('benbalter/jekyll-auth', 404)
+      stub_repo_request('benbalter/gman')
+      stub_repo_request('benbalter/jekyll-auth', 404)
 
-          msg = 'Repository benbalter/jekyll-auth is invalid'
-          expect { creator.run }.to raise_error BulkIssueCreator::InvalidRepoError, msg
-        end
-      end
+      msg = 'Repository benbalter/jekyll-auth is invalid'
+      expect { creator.run }.to raise_error BulkIssueCreator::InvalidRepoError, msg
     end
   end
 end

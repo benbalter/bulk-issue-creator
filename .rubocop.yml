@@ -6,6 +6,7 @@ require:
   
 AllCops:
   NewCops: enable
+  TargetRubyVersion: 2.5
 
 Metrics/BlockLength:
   Exclude:
@@ -14,3 +15,4 @@ Metrics/BlockLength:
 RSpec/ExampleLength:
   Exclude:
     - 'spec/**/*'
+

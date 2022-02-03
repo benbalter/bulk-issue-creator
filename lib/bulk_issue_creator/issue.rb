@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module BulkIssueCreator
+class BulkIssueCreator
   # Represents a row in the CSV to create/comment on an issue
   class Issue
     attr_reader :data, :template

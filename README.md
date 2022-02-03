@@ -14,11 +14,12 @@ Bulk opens batches of issues (or posts comments) across GitHub repositories base
 
 ## Running locally
 
-1. Clone this repository locally
-2. Follow [the "Setup" instructions below](#setup) to add the CSV and template to the repository.
-3. Export the personal access token you create as the `GITHUB_TOKEN` environmental variable, or add it to a `.env` file in the root of the repository.
-4. Run `bundle exec script/run` to preview the output
-5. Run `WRITE=true bundle exec script/run` to create the issues.
+1. `git clone https://github.com/benbalter/bulk-issue-creator`
+2. `bulk-issue-creator init` to create a `./config/data.csv` and `./config/template.md.mustache` files
+3. Follow [the "Setup" instructions below](#setup) to customize the data file and template.
+4. Export the personal access token you create as the `GITHUB_TOKEN` environmental variable, or add it to a `.env` file in the root of the repository in the form of `GITHUB_TOKEN=XXX`.
+5. Run `bulk-issue-creator` to preview the output
+6. Run `bulk-issue-creator --write` to create the issues.
 
 ## Running via GitHub actions
 
@@ -61,13 +62,13 @@ Don't want to deal with the hassle of setting up a local Ruby environment? No wo
 
 ## Setup
 
-1. Create a CSV file in `./config/data.csv`. The CSV must have columns for `repository` and `title` (for issues) or `issue_number` (for comments, all field names being case sensitive). You can also add any other columns you would like, which will be available to the template. It should look something like this:
+1. Run `bulk-issue-creator init` or manually create a CSV file in `./config/data.csv`. The CSV must have columns for `repository` and `title` (for issues) or `issue_number` (for comments). All field names are case sensitive. You can also add any other columns you would like, which will be available to the template. It should look something like this:
     ```csv
     repository,title,project,labels
     benbalter/gman,Update GMan,GMan,"Red,Blue"
     benbalter/jekyll-auth,Update Jekyll Auth,Jekyll Auth,"Green,Blue"
     ```
-2. Create a `./config/template.md.mustache` file in the same directory with the content you want in the issue body. You can reference CSV fields like `{{project}}` using the [Mustache syntax](https://mustache.github.io/mustache.5.html). It should look something like this:
+2. Edit (or create) the `./config/template.md.mustache` file in the same directory with the content you want in the issue body. You can reference CSV fields like `{{project}}` using the [Mustache syntax](https://mustache.github.io/mustache.5.html). It should look something like this:
     ```mustache
     Hey there! It looks like it's time to update {{project}}!
     ```
@@ -77,12 +78,20 @@ Don't want to deal with the hassle of setting up a local Ruby environment? No wo
 
 Templates (and issue titles) support the [Mustache syntax](https://mustache.github.io/mustache.5.html). Field names in the CSV should be lower case, and should use `_`s to separate multiple words `like_this`, instead of spaces.
 
-### Advanced setup
+### Advanced usage
 
-* You can customize the source mustache template and CSV path by setting the `TEMPLATE_PATH` and `CSV_PATH` environmental variables.
-* Prefer to post a comment to an existing issue? Instead of the `title` column, add an `issue_number` column to your CSV with the issue's number (from the URL or next to the issue title) and pass the `COMMENT=true` environmental variable.
-* You can add a `labels` column to the CSV, with a comma-separated list of labels you'd like added to the issue.
+#### Additional command line arguments
+
+```
+Options:
+  [--write], [--no-write]          # Write issues to GitHub, defaults to preview only
+  [--comment], [--no-comment]      # Create comments instead of issues
+  [--template-path=TEMPLATE_PATH]  # Path to the template file
+  [--csv-path=CSV_PATH]            # Path to the CSV file
+  [--github-token=GITHUB_TOKEN]    # GitHub Token for authenticating with GitHub
+```
+
+#### Special fields
+
+* You can add a `labels` or `assignees` column to the CSV, with a comma-separated list of labels or assignees that you'd like added to the issue.
   
-### Development status
-
-Alpha - use at your own risk.
