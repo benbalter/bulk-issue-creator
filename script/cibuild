@@ -5,3 +5,5 @@ set -e
 bundle exec rspec
 bundle exec rubocop
 yamllint *.yml
+bulk-issue-creator help
+gem build bulk_issue_creator.gemspec
