@@ -26,6 +26,10 @@ class BulkIssueCreator
       @data[:assignees] ? @data[:assignees].split(',') : []
     end
 
+    def repository
+      @data[:repository]&.strip
+    end
+
     def method_missing(meth, *arguments, &block)
       return data[meth] if data.key?(meth)
 

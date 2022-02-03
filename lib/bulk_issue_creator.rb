@@ -67,7 +67,7 @@ class BulkIssueCreator
     issues.each do |issue|
       options = { labels: issue.labels, assignees: issue.assignees }
       result = Retryable.retryable(**retriable_options) do
-        client.create_issue(issue.repository.strip, issue.title, issue.body, options)
+        client.create_issue(issue.repository, issue.title, issue.body, options)
       end
       logger.info "Created #{result.html_url}"
     end
@@ -76,7 +76,7 @@ class BulkIssueCreator
   def create_comments
     issues.each do |issue|
       result = Retryable.retryable(**retriable_options) do
-        client.add_comment(issue.repository.strip, issue.issue_number, issue.body)
+        client.add_comment(issue.repository, issue.issue_number, issue.body)
       end
       logger.info "Created #{result.html_url}"
     end
@@ -99,8 +99,8 @@ class BulkIssueCreator
     logger.info "The following #{comment? ? 'comments' : 'issues'} would be created:\n\n"
 
     issues.each do |issue|
-      unless client.repository?(issue.repository.strip)
-        raise InvalidRepoError, "Repository #{issue.repository.strip} is invalid"
+      unless client.repository?(issue.repository)
+        raise InvalidRepoError, "Repository #{issue.repository} is invalid"
       end
 
       logger.info YAML.dump(issue.to_h.stringify_keys)
