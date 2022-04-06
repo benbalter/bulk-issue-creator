@@ -29,7 +29,7 @@ jobs:
       - name: Checkout template and data
         uses: actions/checkout@v2
       - name: Create bulk issues
-        uses: benbalter/bulk-issue-creator@${{ github.ref }}
+        uses: benbalter/bulk-issue-creator@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSV_PATH: ./spec/fixtures/data.csv
