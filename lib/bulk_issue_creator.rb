@@ -17,6 +17,8 @@ class BulkIssueCreator
   class MissingFileError < ArgumentError; end
   class InvalidRepoError < ArgumentError; end
 
+  YAML_FRONT_MATTER_REGEXP = /\A(---\s*\n.*?\n?)^((---|\.\.\.)\s*$\n?)/m.freeze
+
   def initialize(options = {})
     @template_path = options[:template_path]
     @csv_path = options[:csv_path]
@@ -42,7 +44,7 @@ class BulkIssueCreator
   end
 
   def template
-    @template ||= File.read(template_path)
+    @template ||= File.read(template_path).to_s.split(YAML_FRONT_MATTER_REGEXP).last
   end
 
   def issues
