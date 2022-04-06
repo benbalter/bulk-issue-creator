@@ -23,7 +23,8 @@ class BulkIssueCreator
 
   def initialize(options = {})
     OPTIONS.each do |option|
-      instance_variable_set("@#{option}", options[option]) if options[option]
+      value = options[option] || ENV[option.to_s.upcase]
+      instance_variable_set("@#{option}", value) if value
     end
 
     @github_token = ENV['GITHUB_TOKEN']
