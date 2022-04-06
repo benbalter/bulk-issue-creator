@@ -40,6 +40,10 @@ class BulkIssueCreatorCLI < Thor
   end
 
   default_task :create
+
+  def exit_on_failure?
+    true
+  end
 end
 
 BulkIssueCreatorCLI.start(ARGV)
