@@ -20,6 +20,7 @@ class BulkIssueCreator
   autoload :VERSION, 'bulk_issue_creator/version'
 
   OPTIONS = %i[template_path csv_path write comment add_to_project project_id].freeze
+  YAML_FRONT_MATTER_REGEXP = /\A(---\s*\n.*?\n?)^((---|\.\.\.)\s*$\n?)/m.freeze
 
   def initialize(options = {})
     OPTIONS.each do |option|
@@ -50,7 +51,7 @@ class BulkIssueCreator
   end
 
   def template
-    @template ||= File.read(template_path)
+    @template ||= File.read(template_path).to_s.split(YAML_FRONT_MATTER_REGEXP).last
   end
 
   def issues

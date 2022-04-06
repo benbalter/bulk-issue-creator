@@ -77,7 +77,7 @@ RSpec.describe BulkIssueCreator do
   end
 
   context 'with fixtures' do
-    let(:template_path) { fixture_path('template.md.mustache') }
+    let(:template_path) { fixture_path('template-with-front-matter.md.mustache') }
     let(:csv_path) { fixture_path('data.csv') }
 
     it 'reads the template' do

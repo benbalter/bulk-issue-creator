@@ -45,10 +45,10 @@ RSpec.describe BulkIssueCreator::Issue do
   end
 
   context 'with assignees' do
-    let(:data) { { title: 'Update {{project}}', project: 'Test', repository: 'foo/bar', assignees: 'foo' } }
+    let(:data) { { title: 'Update {{project}}', project: 'Test', repository: 'foo/bar', assignees: 'foo, bar' } }
 
     it 'returns assignees' do
-      expect(issue.assignees).to eql(['foo'])
+      expect(issue.assignees).to eql(%w[foo bar])
     end
   end
 

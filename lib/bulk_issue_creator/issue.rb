@@ -15,7 +15,7 @@ class BulkIssueCreator
     end
 
     def title
-      Mustache.render(data[:title].to_s, data)
+      Mustache.render(data[:title].to_s, data).strip
     end
 
     def labels
@@ -23,7 +23,7 @@ class BulkIssueCreator
     end
 
     def assignees
-      @data[:assignees] ? @data[:assignees].split(',') : []
+      @data[:assignees] ? @data[:assignees].split(',').map(&:strip) : []
     end
 
     def repository
