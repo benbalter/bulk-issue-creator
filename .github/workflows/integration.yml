@@ -16,4 +16,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSV_PATH: ./spec/fixtures/data.csv
-          TEMPLATE_PATH: ./spec/fixtures/template-with-front-matter.md.mustache
+        with:
+          template_path: ./spec/fixtures/template-with-front-matter.md.mustache
