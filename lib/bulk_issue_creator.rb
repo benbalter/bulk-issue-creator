@@ -104,14 +104,7 @@ class BulkIssueCreator
     logger.info "The following #{comment? ? 'comments' : 'issues'} would be created:\n\n"
 
     issues.each do |issue|
-      begin
-        unless client.repository?(issue.repository)
-          raise InvalidRepoError, "Repository #{issue.repository} is invalid"
-        end
-      rescue Octokit::Unauthorized => e
-        logger.warn "Unable to check if repository #{issue.repository} is valid: #{e.message}"
-      end
-
+      repo_exists?(issue.repository)
       logger.info YAML.dump(issue.to_h.stringify_keys, line_width: -1)
     end
   end
@@ -140,5 +133,13 @@ class BulkIssueCreator
       builder.use Octokit::Response::RaiseError
       builder.adapter Faraday.default_adapter
     end
+  end
+
+  def repo_exists?(repo)
+    unless client.repository?(repo)
+      raise InvalidRepoError, "Repository #{repo} is invalid"
+    end
+  rescue Octokit::Unauthorized => e
+    logger.warn "Unable to check if repository #{repo} is valid: #{e.message}"
   end
 end
