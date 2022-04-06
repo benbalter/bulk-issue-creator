@@ -8,4 +8,4 @@ RUN bundle install
 COPY bin/ /bin/
 COPY lib/ /lib
 
-ENTRYPOINT ["./bin/bulk-issue-creator create"]
+ENTRYPOINT ["/bin/bulk-issue-creator create"]
