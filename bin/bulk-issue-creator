@@ -40,7 +40,7 @@ class BulkIssueCreatorCLI < Thor
   end
 
   default_task :create
-  
+
   no_commands do
     def exit_on_failure?
       true
