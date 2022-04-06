@@ -6,8 +6,6 @@ runs:
   args:
     - ${{ inputs.write }}
     - ${{ inputs.comment }}
-    - ${{ inputs.add-to-project }}
-    - ${{ inputs.project-id }}
 inputs:
   write:
     required: false
@@ -15,9 +13,3 @@ inputs:
   comment:
     required: false
     description: Create comments instead of issues
-  add-to-project:
-    required: false
-    description: Add newly created issues to a project (beta) project
-  project-id:
-    required: false
-    description: Node ID of the project to add issues to

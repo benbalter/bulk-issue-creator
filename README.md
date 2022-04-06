@@ -52,7 +52,6 @@ Don't want to deal with the hassle of setting up a local Ruby environment? No wo
             with: 
               write: ${{ github.event.inputs.write }}
               comment: ${{ github.event.inputs.comment }}
-              add-to-project: ${{ github.event.inputs.add-to-project }}
             env:
               GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
     ```
@@ -99,22 +98,7 @@ Options:
 
 * You can add a `labels` or `assignees` column to the CSV, with a comma-separated list of labels or assignees that you'd like added to the issue.
 * You can add an `issue_number` column to the CSV, with the issue number you'd like the comment added to. Note: You must pass the `--comment` flag
-* You can add a `project_id` field to the CSV, with the *node ID* of the project you'd like the issue added to. Note: You must pass the `--add-to-project` flag. See below for how to find the project's node ID
 
-#### Finding a project's node ID
+#### Adding issues to a project board
 
-To find a project's node ID, you can follow the instructions [in the Projects documentation](https://docs.github.com/en/issues/trying-out-the-new-projects-experience/using-the-api-to-manage-projects#finding-the-node-id-of-an-organization-project) to find the node ID using `gh cli` locally. 
-
-You can also use the following query via [the hosted GraphQL Explorer](https://docs.github.com/en/graphql/overview/explorer):
-
-```graphQL
-  query{
-    organization(login: "ORGANIZATION"){
-      projectNext(number: NUMBER) {
-        id
-      }
-    }
-  }
-```
-
-In both cases, you'll want to replace `ORGANIZATION` and `NUMBER` with the owning organization name and the project number as seen in its URL.
+If you'd like to add created issues to a project board, I suggest adding a specific label and using [`actions/add-to-project`](https://github.com/actions/add-to-project) to add the issue to the project board.

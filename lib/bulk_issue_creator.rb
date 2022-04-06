@@ -15,18 +15,17 @@ class BulkIssueCreator
   class MissingFileError < ArgumentError; end
   class InvalidRepoError < ArgumentError; end
 
-  autoload :Project, 'bulk_issue_creator/project'
   autoload :Issue, 'bulk_issue_creator/issue'
   autoload :VERSION, 'bulk_issue_creator/version'
 
-  OPTIONS = %i[template_path csv_path write comment add_to_project project_id].freeze
+  OPTIONS = %i[template_path csv_path write comment].freeze
   YAML_FRONT_MATTER_REGEXP = /\A(---\s*\n.*?\n?)^((---|\.\.\.)\s*$\n?)/m.freeze
 
   def initialize(options = {})
     OPTIONS.each do |option|
       instance_variable_set("@#{option}", options[option]) if options[option]
     end
-    
+
     @github_token = ENV['GITHUB_TOKEN']
   end
 
@@ -44,10 +43,6 @@ class BulkIssueCreator
 
   def comment?
     @comment == true
-  end
-
-  def add_to_project?
-    @add_to_project == true
   end
 
   def template
@@ -79,20 +74,7 @@ class BulkIssueCreator
         client.create_issue(issue.repository, issue.title, issue.body, options)
       end
       logger.info "Created #{result.html_url}"
-
-      add_to_project(result.node_id, issue.project_id) if add_to_project?
     end
-  end
-
-  def add_to_project(content_id, project_id = nil)
-    project_id ||= @project_id
-    return unless project_id
-
-    project = Project.new(project_id)
-    Retryable.retryable(**retriable_options) do
-      project.add_issue(content_id)
-    end
-    logger.info "Added #{content_id} to project #{project_id}"
   end
 
   def create_comments
