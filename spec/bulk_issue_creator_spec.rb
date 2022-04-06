@@ -7,12 +7,14 @@ RSpec.describe BulkIssueCreator do
   let(:csv_path) { nil }
   let(:write) { nil }
   let(:comment) { nil }
+  let(:add_to_project) { nil }
   let(:options) do
     {
       template_path: template_path,
       csv_path: csv_path,
       write: write,
-      comment: comment
+      comment: comment,
+      add_to_project: add_to_project
     }
   end
 
@@ -110,6 +112,32 @@ RSpec.describe BulkIssueCreator do
         creator.run
         expect(gman_stub).to have_been_made
         expect(jekyll_auth_stub).to have_been_made
+      end
+    end
+
+    context 'when adding to a project' do
+      let(:write) { true }
+      let(:add_to_project) { true }
+
+      it 'adds issues to the project' do
+        stub_issue_request('benbalter/gman', 'GMan', %w[Red Blue])
+        stub_issue_request('benbalter/jekyll-auth', 'Jekyll Auth', %w[Green Blue])
+
+        url = 'https://api.github.com/graphql'
+        body = {
+          query: described_class::Project::MUTATION,
+          variables: {
+            projectId: 'project123',
+            contentId: 'issue123'
+          }
+        }
+        response = { id: 123 }.to_json
+        request = stub_request(:post, url).with(body: body).to_return(
+          status: 200, body: response, headers: { 'Content-Type' => 'application/json' }
+        )
+
+        creator.run
+        expect(request).to have_been_made
       end
     end
 

@@ -30,6 +30,10 @@ class BulkIssueCreator
       @data[:repository]&.strip
     end
 
+    def project_id
+      @data[:project_id]
+    end
+
     def method_missing(meth, *arguments, &block)
       return data[meth] if data.key?(meth)
 

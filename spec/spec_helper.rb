@@ -28,7 +28,10 @@ end
 def stub_issue_request(nwo, name, labels)
   url = "https://api.github.com/repos/#{nwo}/issues"
   body = { title: "Update #{name}", body: "Hello #{name}!", labels: labels, assignees: [] }
-  response = { html_url: 'https://github.com/benbalter/bulk-issue-creator/issues/1' }.to_json
+  response = {
+    html_url: 'https://github.com/benbalter/bulk-issue-creator/issues/1',
+    node_id: 'issue123'
+  }.to_json
   stub_request(:post, url).with(body: body).to_return(
     status: 200, body: response, headers: { 'Content-Type' => 'application/json' }
   )

@@ -34,8 +34,9 @@ Don't want to deal with the hassle of setting up a local Ruby environment? No wo
       workflow_dispatch:
         inputs:
           write:
-            description: "Change to 'true' to create issues, leaave as 'false' to preview output"
+            description: "Change to 'true' to create issues, leave as 'false' to preview output"
             default: "false"
+            type: boolean
 
     name: Bulk issue creator
 
@@ -48,9 +49,12 @@ Don't want to deal with the hassle of setting up a local Ruby environment? No wo
             uses: actions/checkout@v2
           - name: Create bulk issues
             uses: benbalter/bulk-issue-creator@main
+            with: 
+              write: ${{ github.event.inputs.write }}
+              comment: ${{ github.event.inputs.comment }}
+              add-to-project: ${{ github.event.inputs.add-to-project }}
             env:
               GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-              WRITE: ${{ github.event.inputs.write }}
     ```
 5. Navigate to `Actions` -> `Bulk issue creator` -> `Run Workflow` and click `Run Workflow` to preview the output. 
     ![Workflow dispatch steps](https://user-images.githubusercontent.com/282759/115309898-e8bfef80-a13a-11eb-95c9-dccd8fc16108.png)
@@ -84,14 +88,33 @@ Templates (and issue titles) support the [Mustache syntax](https://mustache.gith
 
 ```
 Options:
-  [--write], [--no-write]          # Write issues to GitHub, defaults to preview only
-  [--comment], [--no-comment]      # Create comments instead of issues
-  [--template-path=TEMPLATE_PATH]  # Path to the template file
-  [--csv-path=CSV_PATH]            # Path to the CSV file
-  [--github-token=GITHUB_TOKEN]    # GitHub Token for authenticating with GitHub
+  [--write], [--no-write]                    # Write issues to GitHub, defaults to preview only
+  [--comment], [--no-comment]                # Create comments instead of issues
+  [--template-path=TEMPLATE_PATH]            # Path to the template file
+  [--csv-path=CSV_PATH]                      # Path to the CSV file
+  [--add-to-project], [--no-add-to-project]  # Add newly created issues to a project (beta) project
 ```
 
 #### Special fields
 
 * You can add a `labels` or `assignees` column to the CSV, with a comma-separated list of labels or assignees that you'd like added to the issue.
-  
+* You can add an `issue_number` column to the CSV, with the issue number you'd like the comment added to. Note: You must pass the `--comment` flag
+* You can add a `project_id` field to the CSV, with the *node ID* of the project you'd like the issue added to. Note: You must pass the `--add-to-project` flag. See below for how to find the project's node ID
+
+#### Finding a project's node ID
+
+To find a project's node ID, you can follow the instructions [in the Projects documentation](https://docs.github.com/en/issues/trying-out-the-new-projects-experience/using-the-api-to-manage-projects#finding-the-node-id-of-an-organization-project) to find the node ID using `gh cli` locally. 
+
+You can also use the following query via [the hosted GraphQL Explorer](https://docs.github.com/en/graphql/overview/explorer):
+
+```graphQL
+  query{
+    organization(login: "ORGANIZATION"){
+      projectNext(number: NUMBER) {
+        id
+      }
+    }
+  }
+```
+
+In both cases, you'll want to replace `ORGANIZATION` and `NUMBER` with the owning organization name and the project number as seen in its URL.

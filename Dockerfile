@@ -5,7 +5,7 @@ COPY bulk_issue_creator.gemspec ./
 RUN bundle install
 
 COPY bin/ /bin/
-COPY lib/ /lib/
-COPY script/run /script/run
+COPY lib/ /lib
+COPY entrypoint.sh entrypoint.sh
 
-ENTRYPOINT ["/bin/bulk-issue-creator"]
+ENTRYPOINT ["entrypoint.sh"]
