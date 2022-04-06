@@ -86,10 +86,11 @@ Templates (and issue titles) support the [Mustache syntax](https://mustache.gith
 
 ```
 Options:
-  [--write], [--no-write]                    # Write issues to GitHub, defaults to preview only
-  [--comment], [--no-comment]                # Create comments instead of issues
-  [--template-path=TEMPLATE_PATH]            # Path to the template file
-  [--csv-path=CSV_PATH]                      # Path to the CSV file
+  [--write], [--no-write]          # Write issues to GitHub, defaults to preview only
+  [--comment], [--no-comment]      # Create comments instead of issues
+  [--template-path=TEMPLATE_PATH]  # Path to the template file
+  [--csv-path=CSV_PATH]            # Path to the CSV file
+  [--github-token=GITHUB_TOKEN]    # GitHub Token for authenticating with GitHub
 ```
 
 *Note: Arguments can also be passed as environmental variables, e.g., `CSV_PATH` or `WRITE`.* 

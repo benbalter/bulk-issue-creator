@@ -8,6 +8,7 @@ runs:
     - ${{ inputs.comment }}
     - ${{ inputs.template_path }}
     - ${{ inputs.csv_path }}
+    - ${{ inputs.github_token }}
 inputs:
   write:
     required: false
@@ -21,3 +22,6 @@ inputs:
   csv_path:
     required: false
     description: Path to the CSV file
+  github_token:
+    required: false
+    description: GitHub Token for authenticating with GitHub

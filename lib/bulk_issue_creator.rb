@@ -18,7 +18,7 @@ class BulkIssueCreator
   autoload :Issue, 'bulk_issue_creator/issue'
   autoload :VERSION, 'bulk_issue_creator/version'
 
-  OPTIONS = %i[template_path csv_path write comment].freeze
+  OPTIONS = %i[template_path csv_path write comment github_token].freeze
   YAML_FRONT_MATTER_REGEXP = /\A(---\s*\n.*?\n?)^((---|\.\.\.)\s*$\n?)/m.freeze
 
   def initialize(options = {})
