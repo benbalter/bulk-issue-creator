@@ -10,11 +10,11 @@ if [ "$2" == "true" ]; then
 fi
 
 if [ ! -z "$3" ]; then
-  ARGS+="--csv-path=$3 "
+  ARGS+="--template-path=$3 "
 fi
 
 if [ ! -z "$4" ]; then
-  ARGS+="--template-path=$3 "
+  ARGS+="--csv-path=$3 "
 fi
 
 bundle exec ./bin/bulk-issue-creator create $ARGS
