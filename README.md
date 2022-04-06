@@ -51,7 +51,6 @@ Don't want to deal with the hassle of setting up a local Ruby environment? No wo
             uses: benbalter/bulk-issue-creator@main
             with: 
               write: ${{ github.event.inputs.write }}
-              comment: ${{ github.event.inputs.comment }}
             env:
               GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
     ```
@@ -92,6 +91,8 @@ Options:
   [--template-path=TEMPLATE_PATH]            # Path to the template file
   [--csv-path=CSV_PATH]                      # Path to the CSV file
 ```
+
+*Note: Arguments can also be passed as environmental variables, e.g., `CSV_PATH` or `WRITE`.* 
 
 #### Special fields
 

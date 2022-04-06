@@ -3,9 +3,11 @@ description: Bulk opens batches of issues across GitHub repositories based on a 
 runs:
   using: 'docker'
   image: 'Dockerfile'
-  #args:
-  #  - ${{ inputs.write }}
-  #  - ${{ inputs.comment }}
+  args:
+    - ${{ inputs.write }}
+    - ${{ inputs.comment }}
+    - ${{ inputs.template_path }}
+    - ${{ inputs.csv_path }}
 inputs:
   write:
     required: false
@@ -13,3 +15,9 @@ inputs:
   comment:
     required: false
     description: Create comments instead of issues
+  template_path:
+    required: false
+    description: Path to the template fil
+  csv_path:
+    required: false
+    description: Path to the CSV file

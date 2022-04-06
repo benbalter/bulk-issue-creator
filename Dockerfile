@@ -7,5 +7,6 @@ RUN bundle install
 
 COPY bin/ /bin/
 COPY lib/ /lib
+COPY entrypoint.sh entrypoint.sh
 
-ENTRYPOINT ["/bin/bulk-issue-creator", "create"]
+ENTRYPOINT ["/entrypoint.sh"]
