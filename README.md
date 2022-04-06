@@ -91,7 +91,6 @@ Options:
   [--comment], [--no-comment]                # Create comments instead of issues
   [--template-path=TEMPLATE_PATH]            # Path to the template file
   [--csv-path=CSV_PATH]                      # Path to the CSV file
-  [--add-to-project], [--no-add-to-project]  # Add newly created issues to a project (beta) project
 ```
 
 #### Special fields
