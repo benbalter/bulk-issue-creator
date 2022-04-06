@@ -44,7 +44,7 @@ class BulkIssueCreator
   end
 
   def template
-    @template ||= File.read(template_path).to_s.split(YAML_FRONT_MATTER_REGEXP).last
+    @template ||= File.read(template_path).to_s.split(YAML_FRONT_MATTER_REGEXP).last.to_s
   end
 
   def issues
@@ -101,11 +101,15 @@ class BulkIssueCreator
     logger.info "The following #{comment? ? 'comments' : 'issues'} would be created:\n\n"
 
     issues.each do |issue|
-      unless client.repository?(issue.repository)
-        raise InvalidRepoError, "Repository #{issue.repository} is invalid"
+      begin
+        unless client.repository?(issue.repository)
+          raise InvalidRepoError, "Repository #{issue.repository} is invalid"
+        end
+      rescue Octokit::Unauthorized => e
+        logger.warn "Unable to check if repository #{issue.repository} is valid: #{e.message}"
       end
 
-      logger.info YAML.dump(issue.to_h.stringify_keys)
+      logger.info YAML.dump(issue.to_h.stringify_keys, line_width: -1)
     end
   end
 
