@@ -3,9 +3,9 @@ description: Bulk opens batches of issues across GitHub repositories based on a 
 runs:
   using: 'docker'
   image: 'Dockerfile'
-  args:
-    - ${{ inputs.write }}
-    - ${{ inputs.comment }}
+  #args:
+  #  - ${{ inputs.write }}
+  #  - ${{ inputs.comment }}
 inputs:
   write:
     required: false
