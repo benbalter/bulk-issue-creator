@@ -9,4 +9,4 @@ COPY bin/ /bin/
 COPY lib/ /lib
 COPY entrypoint.sh entrypoint.sh
 
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["/bin/bulk-issue-creator"]
