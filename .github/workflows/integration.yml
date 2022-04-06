@@ -1,0 +1,19 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    name: Integration Test
+    steps:
+      - name: Checkout template and data
+        uses: actions/checkout@v2
+      - name: Create bulk issues
+        uses: benbalter/bulk-issue-creator@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSV_PATH: ./spec/fixtures/data.csv
+          TEMPLATE_PATH: ./spec/fixtures/template-with-front-matter.md.mustache
