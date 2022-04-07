@@ -6,11 +6,11 @@ runs:
   using: docker
   image: Dockerfile
   args:
-  - "${{ inputs.write }}"
-  - "${{ inputs.comment }}"
-  - "${{ inputs.template_path }}"
-  - "${{ inputs.csv_path }}"
-  - "${{ inputs.github_token }}"
+    - "${{ inputs.write }}"
+    - "${{ inputs.comment }}"
+    - "${{ inputs.template_path }}"
+    - "${{ inputs.csv_path }}"
+    - "${{ inputs.github_token }}"
 inputs:
   write:
     required: false
