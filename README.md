@@ -87,6 +87,13 @@ Templates (and issue titles) support the [Mustache syntax](https://mustache.gith
 Options can be passed as command line arguments when running locally or via the `with:` property of GitHub Actions. Both locally and when running via GitHub actions, options can also be passed via environment variables. See the table below for available options and how to pass them:
 
 <!-- Options here -->
+| Command line                    | GitHub Actions `with:`         | GitHub Actions `env:`          | Description                                      |
+|---------------------------------|--------------------------------|--------------------------------|--------------------------------------------------|
+| `--write`                       | `write: true`                  | `WRITE: true`                  | Write issues to GitHub, defaults to preview only |
+| `--comment`                     | `comment: true`                | `COMMENT: true`                | Create comments instead of issues                |
+| `--template-path=TEMPLATE_PATH` | `template_path: TEMPLATE_PATH` | `TEMPLATE_PATH: TEMPLATE_PATH` | Path to the template file                        |
+| `--csv-path=CSV_PATH`           | `csv_path: CSV_PATH`           | `CSV_PATH: CSV_PATH`           | Path to the CSV file                             |
+| `--github-token=GITHUB_TOKEN`   | `github_token: GITHUB_TOKEN`   | `GITHUB_TOKEN: GITHUB_TOKEN`   | GitHub Token for authenticating with GitHub      |
 
 #### Special fields
 

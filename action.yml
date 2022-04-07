@@ -1,14 +1,16 @@
+---
 name: GitHub bulk issue creator
-description: Bulk opens batches of issues across GitHub repositories based on a template and CSV of values.
+description: Bulk opens batches of issues across GitHub repositories based on a template
+  and CSV of values.
 runs:
-  using: 'docker'
-  image: 'Dockerfile'
+  using: docker
+  image: Dockerfile
   args:
-    - ${{ inputs.write }}
-    - ${{ inputs.comment }}
-    - ${{ inputs.template_path }}
-    - ${{ inputs.csv_path }}
-    - ${{ inputs.github_token }}
+  - "${{ inputs.write }}"
+  - "${{ inputs.comment }}"
+  - "${{ inputs.template_path }}"
+  - "${{ inputs.csv_path }}"
+  - "${{ inputs.github_token }}"
 inputs:
   write:
     required: false
@@ -18,7 +20,7 @@ inputs:
     description: Create comments instead of issues
   template_path:
     required: false
-    description: Path to the template fil
+    description: Path to the template file
   csv_path:
     required: false
     description: Path to the CSV file
