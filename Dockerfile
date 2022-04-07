@@ -12,7 +12,4 @@ COPY entrypoint.sh entrypoint.sh
 COPY bin/ bin/
 COPY lib/ lib/
 
-RUN pwd
-RUN ls -la
-
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["sh", "-c", "$GITHUB_WORKSPACE/entrypoint.sh"]
