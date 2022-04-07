@@ -18,6 +18,6 @@ jobs:
         uses: benbalter/bulk-issue-creator@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CSV_PATH: ${{ env.GITHUB_WORKSPACE }}/data.csv
         with:
+          csv_path: ${{ env.GITHUB_WORKSPACE }}/data.csv
           template_path: ${{ env.GITHUB_WORKSPACE }}/template-with-front-matter.md.mustache
