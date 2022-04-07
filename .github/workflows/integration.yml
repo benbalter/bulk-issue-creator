@@ -9,12 +9,18 @@ jobs:
     runs-on: ubuntu-latest
     name: Integration Test
     steps:
-      - name: Checkout template and data
-        uses: actions/checkout@v2
+      - name: Download data fixture
+        run: |
+          curl -O https://raw.githubusercontent.com/benbalter/bulk-issue-creator/main/spec/fixtures/data.csv
+
+      - name: Download template fixture
+        run: |
+          curl -O https://raw.githubusercontent.com/benbalter/bulk-issue-creator/main/spec/fixtures/template-with-front-matter.md.mustache
+
       - name: Create bulk issues
         uses: benbalter/bulk-issue-creator@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CSV_PATH: ./spec/fixtures/data.csv
+          CSV_PATH: ./data.csv
         with:
-          template_path: ./spec/fixtures/template-with-front-matter.md.mustache
+          template_path: ./template-with-front-matter.md.mustache
