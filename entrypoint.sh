@@ -17,5 +17,4 @@ if [ ! -z "$4" ]; then
   ARGS+="--csv-path=$3 "
 fi
 
-cd $GITHUB_WORKSPACE
-bundle exec ./bin/bulk-issue-creator create $ARGS
+BUNDLE_GEMFILE="$SCRIPT_PATH/Gemfile" bundle exec ./bin/bulk-issue-creator create $ARGS
