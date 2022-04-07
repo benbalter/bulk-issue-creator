@@ -12,12 +12,20 @@ jobs:
       - name: Checkout fixtures
         uses: actions/checkout@v2
         with:
-          repo: benbalter/bulk-issue-creator-tests
+          repository: benbalter/bulk-issue-creator-tests
+          
+      - name: Dry run
+        uses: benbalter/bulk-issue-creator@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          CSV_PATH: ./data.csv
+          TEMPLATE_PATH: ./template-with-front-matter.md.mustache
           
       - name: Create bulk issues
         uses: benbalter/bulk-issue-creator@main
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           CSV_PATH: ./data.csv
           TEMPLATE_PATH: ./template-with-front-matter.md.mustache
+          WRITE: ture
 
