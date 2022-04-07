@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 require 'terminal-table'
 require 'yaml'
@@ -18,7 +19,7 @@ matches.each do |match|
   actions = match[0].tr('-', '_')
   env = match[0].tr('-', '_').upcase
 
-  inputs[actions] = { "required" => false, "description" => description }
+  inputs[actions] = { 'required' => false, 'description' => description }
 
   cli << "=#{env}" if arg
   if arg
@@ -29,17 +30,16 @@ matches.each do |match|
     env << ': true'
   end
 
-
   rows << [cli, actions, env].map { |c| "`#{c}`" }.push(description)
 end
 
 table = Terminal::Table.new rows: rows, headings: headings, style: { border: :markdown }
 
 readme = File.read('./README.md')
-delim = "<!-- Options here -->"
+delim = '<!-- Options here -->'
 readme = readme.gsub(/#{Regexp.escape(delim)}.*?####/m, "#{delim}\n#{table}\n\n####")
 File.write('./README.md', readme)
 
-actions_yml = YAML.load_file("./action.yml")
-actions_yml["inputs"] = inputs
+actions_yml = YAML.load_file('./action.yml')
+actions_yml['inputs'] = inputs
 File.write('./action.yml', YAML.dump(actions_yml))
