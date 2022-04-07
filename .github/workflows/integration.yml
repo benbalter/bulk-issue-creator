@@ -12,12 +12,12 @@ jobs:
       - name: Checkout fixtures
         uses: actions/checkout@v2
         with:
-          ref: fixtures
+          repo: benbalter/bulk-issue-creator-tests
           
       - name: Create bulk issues
         uses: benbalter/bulk-issue-creator@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CSV_PATH: ./spec/fixtures/data.csv
-          TEMPLATE_PATH: ./spec/fixtures/template-with-front-matter.md.mustache
+          CSV_PATH: ./data.csv
+          TEMPLATE_PATH: ./template-with-front-matter.md.mustache
 
