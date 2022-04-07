@@ -11,7 +11,6 @@ class BulkIssueCreator
     end
 
     def body
-      puts template.inspect
       Mustache.render(template, data)
     end
 
