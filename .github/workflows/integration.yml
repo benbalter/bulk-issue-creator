@@ -27,5 +27,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           CSV_PATH: ./data.csv
           TEMPLATE_PATH: ./template-with-front-matter.md.mustache
-          WRITE: ture
+          WRITE: true
 
