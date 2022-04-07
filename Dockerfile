@@ -1,6 +1,7 @@
 FROM ruby:2.7
 
-WORKDIR /usr/src/app
+ENV GITHUB_WORKSPACE=/usr/src/app
+WORKDIR $GITHUB_WORKSPACE
 
 COPY Gemfile ./
 COPY lib/bulk_issue_creator/version.rb lib/bulk_issue_creator/version.rb
