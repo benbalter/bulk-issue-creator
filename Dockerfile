@@ -11,4 +11,4 @@ COPY bin/ bin/
 COPY lib/ lib/
 COPY entrypoint.sh entrypoint.sh
 
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["/usr/src/app/entrypoint.sh"]
