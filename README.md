@@ -1,6 +1,6 @@
 # GitHub bulk issue creator
 
-Bulk opens batches of issues (or posts comments) across GitHub repositories based on a template and CSV of values. Think of it like "mail merge" for GitHub issues.
+Bulk opens batches of issues (or posts comments) across GitHub repositories based on a template and CSV of values. Think of it like "mail merge" for GitHub issues. It can be run locally, via Codespaces, or via GitHub Actions.
 
 ## How it works
 
@@ -8,8 +8,8 @@ Bulk opens batches of issues (or posts comments) across GitHub repositories base
    ![Example CSV](https://user-images.githubusercontent.com/282759/115310271-86b3ba00-a13b-11eb-9fab-b5a7ac613c42.png)
 2. You create a template of what you'd like to use as the basis for the resulting issue body. You can even reference those per-issue fill-in fields. If we wanted to reference the `name` field in the example above, it might look something like this:<br />
    ![Example template](https://user-images.githubusercontent.com/282759/115310395-c11d5700-a13b-11eb-91b5-e1b74beda70d.png)
-3. You run the bulk issue creator script (either locally or via GitHub Actions - see below)
-4. Customized issues are created on your behalf for every row you defined in the CSV.
+3. You run the bulk issue creator script (either locally, via Codespaces, or via GitHub Actions - see below)
+4. Customized issues (or comments) are created on your behalf for every row you defined in the CSV.
 5. Profit! :tada:
 
 ## Running locally
@@ -27,7 +27,7 @@ Don't want to deal with the hassle of setting up a local Ruby environment? No wo
 
 1. Create a new repository (public or private)
 2. Follow [the "Setup" instructions below](#setup) to add the CSV and template to the repository.
-3. Store the personal access token you create as the `PERSONAL_ACCESS_TOKEN` [Actions Secret](https://docs.github.com/en/actions/reference/encrypted-secrets) within the repository settings
+3. If you'd like to open issues in a repository other than the one containing the action, store a personal access token you create as the `PERSONAL_ACCESS_TOKEN` [Actions Secret](https://docs.github.com/en/actions/reference/encrypted-secrets) within the repository settings
 4. Create a `.github/workflows/bulk-issue-creator.yml` file with the following contents:
     ```yml
     on: 
@@ -82,18 +82,11 @@ Templates (and issue titles) support the [Mustache syntax](https://mustache.gith
 
 ### Advanced usage
 
-#### Additional command line arguments
+#### Optional arguments
 
-```
-Options:
-  [--write], [--no-write]          # Write issues to GitHub, defaults to preview only
-  [--comment], [--no-comment]      # Create comments instead of issues
-  [--template-path=TEMPLATE_PATH]  # Path to the template file
-  [--csv-path=CSV_PATH]            # Path to the CSV file
-  [--github-token=GITHUB_TOKEN]    # GitHub Token for authenticating with GitHub
-```
+Options can be passed as command line arguments when running locally or via the `with:` property of GitHub Actions. Both locally and when running via GitHub actions, options can also be passed via environment variables. See the table below for available options and how to pass them:
 
-*Note: Arguments can also be passed as environmental variables, e.g., `CSV_PATH` or `WRITE`.* 
+<!-- Options here -->
 
 #### Special fields
 
