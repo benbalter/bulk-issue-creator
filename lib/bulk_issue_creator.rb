@@ -18,32 +18,35 @@ class BulkIssueCreator
   autoload :Issue, 'bulk_issue_creator/issue'
   autoload :VERSION, 'bulk_issue_creator/version'
 
-  OPTIONS = %i[template_path csv_path write comment github_token].freeze
+  OPTION_KEYS = %i[template_path csv_path write comment github_token].freeze
+  BOOL_OPTIONS = %i[write comment].freeze
+  DEFAULT_TEMPLATE_PATH = './config/template.md.mustache'
+  DEFAULT_CSV_PATH = './config/data.csv'
   YAML_FRONT_MATTER_REGEXP = /\A(---\s*\n.*?\n?)^((---|\.\.\.)\s*$\n?)/m.freeze
 
-  def initialize(options = {})
-    OPTIONS.each do |option|
-      value = options[option] || ENV.fetch(option.to_s.upcase, nil)
-      instance_variable_set("@#{option}", value) if value
-    end
+  def initialize(passed_options = {})
+    @options = {}
 
-    @github_token = ENV.fetch('GITHUB_TOKEN', nil)
+    OPTION_KEYS.each do |key|
+      value = passed_options[key] || ENV.fetch(key.to_s.upcase, nil)
+      @options[key] = BOOL_OPTIONS.include?(key) ? truthy?(value) : value
+    end
   end
 
   def template_path
-    @template_path ||= File.expand_path('./config/template.md.mustache', Dir.pwd)
+    @options[:template_path] ||= File.expand_path(DEFAULT_TEMPLATE_PATH, Dir.pwd)
   end
 
   def csv_path
-    @csv_path ||= File.expand_path('./config/data.csv', Dir.pwd)
+    @options[:csv_path] ||= File.expand_path(DEFAULT_CSV_PATH, Dir.pwd)
   end
 
   def read_only?
-    !truthy?(@write)
+    !@options[:write]
   end
 
   def comment?
-    truthy?(@comment)
+    @options[:comment]
   end
 
   def template
@@ -55,6 +58,8 @@ class BulkIssueCreator
   end
 
   def run
+    logger.info "Running with the following options:\n#{options_preview}"
+
     ensure_path_exists(csv_path)
     ensure_path_exists(template_path)
     return preview_output if read_only?
@@ -88,7 +93,7 @@ class BulkIssueCreator
   end
 
   def client
-    @client ||= Octokit::Client.new(access_token: @github_token, middlware: octokit_middleware)
+    @client ||= Octokit::Client.new(access_token: @options[:github_token], middlware: octokit_middleware)
   end
 
   def table
@@ -100,7 +105,7 @@ class BulkIssueCreator
   end
 
   def preview_output
-    logger.info 'Running in read-only mode. Pass `WRITE=true` environmental variable to create issues.'
+    logger.info 'Running in READ ONLY mode. Pass `WRITE=true` environmental variable to create issues.'
     logger.info "The following #{comment? ? 'comments' : 'issues'} would be created:\n\n"
 
     issues.each do |issue|
@@ -145,5 +150,10 @@ class BulkIssueCreator
 
   def truthy?(value)
     value.to_s.casecmp('true').zero?
+  end
+
+  def options_preview
+    options = @options.reject { |k, _v| k == :github_token }
+    YAML.dump(options.stringify_keys)
   end
 end
