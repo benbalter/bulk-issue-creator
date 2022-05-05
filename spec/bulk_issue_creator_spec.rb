@@ -141,6 +141,22 @@ RSpec.describe BulkIssueCreator do
       end
     end
 
+    context 'when passed comment via ENV var' do
+      let(:write) { true }
+
+      it 'creates comments' do
+        gman_stub = stub_comment_request('benbalter/gman', 'GMan', 1)
+        jekyll_auth_stub = stub_comment_request('benbalter/jekyll-auth', 'Jekyll Auth', 2)
+
+        with_env('COMMENT', 'true') do
+          creator.run
+        end
+
+        expect(gman_stub).to have_been_made
+        expect(jekyll_auth_stub).to have_been_made
+      end
+    end
+
     it 'validates that repositories exist' do
       stub_repo_request('benbalter/gman')
       stub_repo_request('benbalter/jekyll-auth', 404)

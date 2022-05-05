@@ -23,11 +23,11 @@ class BulkIssueCreator
 
   def initialize(options = {})
     OPTIONS.each do |option|
-      value = options[option] || ENV[option.to_s.upcase]
+      value = options[option] || ENV.fetch(option.to_s.upcase, nil)
       instance_variable_set("@#{option}", value) if value
     end
 
-    @github_token = ENV['GITHUB_TOKEN']
+    @github_token = ENV.fetch('GITHUB_TOKEN', nil)
   end
 
   def template_path
@@ -39,11 +39,11 @@ class BulkIssueCreator
   end
 
   def read_only?
-    @write != true && @write != 'true'
+    !truthy?(@write)
   end
 
   def comment?
-    @comment == true
+    truthy?(@comment)
   end
 
   def template
@@ -141,5 +141,9 @@ class BulkIssueCreator
     end
   rescue Octokit::Unauthorized => e
     logger.warn "Unable to check if repository #{repo} is valid: #{e.message}"
+  end
+
+  def truthy?(value)
+    value.to_s.casecmp('true').zero?
   end
 end
