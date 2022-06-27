@@ -54,7 +54,7 @@ Don't want to deal with the hassle of setting up a local Ruby environment? No wo
             env:
               GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
     ```
-5. Navigate to `Actions` -> `Bulk issue creator` -> `Run Workflow` and click `Run Workflow` to preview the output. 
+5. Navigate to `Actions` -> `Bulk issue creator` -> `Run Workflow` and click `Run Workflow` to preview the output.
     ![Workflow dispatch steps](https://user-images.githubusercontent.com/282759/115309898-e8bfef80-a13a-11eb-95c9-dccd8fc16108.png)
 
     Note: once you run the workflow, you can see the output by clicking `Bulk issue creator` in the side bar, and then clicking into the most recent run.
@@ -84,10 +84,10 @@ Templates (and issue titles) support the [Mustache syntax](https://mustache.gith
 
 #### Optional arguments
 
-Options can be passed as command line arguments when running locally or via the `with:` property of GitHub Actions. Both locally and when running via GitHub actions, options can also be passed via environment variables. See the table below for available options and how to pass them:
+Options can be passed as command-line arguments when running locally or via the `with:` property of GitHub Actions. Both locally and when running via GitHub actions, options can also be passed via environment variables. See the table below for available options and how to pass them:
 
 <!-- Options here -->
-| Command line                    | GitHub Actions `with:`         | GitHub Actions `env:`          | Description                                      |
+| Command-line                    | GitHub Actions `with:`         | GitHub Actions `env:`          | Description                                      |
 |---------------------------------|--------------------------------|--------------------------------|--------------------------------------------------|
 | `--write`                       | `write: true`                  | `WRITE: true`                  | Write issues to GitHub, defaults to preview only |
 | `--comment`                     | `comment: true`                | `COMMENT: true`                | Create comments instead of issues                |

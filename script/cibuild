@@ -4,6 +4,6 @@ set -e
 
 bundle exec rspec
 bundle exec rubocop
-yamllint *.yml
+yamllint ./*.yml
 ./bin/bulk-issue-creator help
 gem build bulk_issue_creator.gemspec

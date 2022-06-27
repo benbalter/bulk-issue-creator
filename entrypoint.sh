@@ -9,11 +9,11 @@ if [ "$2" == "true" ]; then
   ARGS+="--comment "
 fi
 
-if [ ! -z "$3" ]; then
+if [ -n "$3" ]; then
   ARGS+="--template-path=$3 "
 fi
 
-if [ ! -z "$4" ]; then
+if [ -n "$4" ]; then
   ARGS+="--csv-path=$3 "
 fi
 
