@@ -21,4 +21,5 @@ jobs:
          # VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: main
           RUBY_CONFIG_FILE: .rubocop.yml
+          LINTER_RULES_PATH: .
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
