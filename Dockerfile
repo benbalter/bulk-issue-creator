@@ -1,4 +1,4 @@
-FROM ruby:2.7
+FROM ruby:3.1.2
 
 ENV SCRIPT_PATH=/usr/src/app
 WORKDIR $SCRIPT_PATH
