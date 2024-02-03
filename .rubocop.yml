@@ -1,20 +1,20 @@
 inherit_from: .rubocop_todo.yml
 
-require: 
+require:
   - rubocop-performance
   - rubocop-rspec
-  
+
 AllCops:
   NewCops: enable
   TargetRubyVersion: 2.5
 
 Metrics/BlockLength:
   Exclude:
-    - 'spec/**/*'
+    - "spec/**/*"
 
 RSpec/ExampleLength:
   Exclude:
-    - 'spec/**/*'
+    - "spec/**/*"
 
 Style/StringLiterals:
   EnforcedStyle: single_quotes

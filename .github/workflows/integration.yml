@@ -13,14 +13,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: benbalter/bulk-issue-creator-tests
-          
+
       - name: Dry run
         uses: benbalter/bulk-issue-creator@main
         env:
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           CSV_PATH: ./data.csv
           TEMPLATE_PATH: ./template-with-front-matter.md.mustache
-          
+
       - name: Create bulk issues
         uses: benbalter/bulk-issue-creator@main
         env:
@@ -28,4 +28,3 @@ jobs:
           CSV_PATH: ./data.csv
           TEMPLATE_PATH: ./template-with-front-matter.md.mustache
           WRITE: true
-

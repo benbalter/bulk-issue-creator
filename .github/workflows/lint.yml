@@ -4,7 +4,7 @@ on:
   push: {}
   pull_request:
     branches: [master, main]
-    
+
 jobs:
   build:
     name: Lint Code Base
@@ -18,7 +18,7 @@ jobs:
       - name: Lint Code Base
         uses: github/super-linter@v5
         env:
-         # VALIDATE_ALL_CODEBASE: false
+          # VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: main
           RUBY_CONFIG_FILE: .rubocop.yml
           LINTER_RULES_PATH: .
