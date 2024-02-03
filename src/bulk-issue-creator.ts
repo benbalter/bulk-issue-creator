@@ -83,7 +83,7 @@ export class BulkIssueCreator {
     return issues;
   }
 
-  run() {
+  async run() {
     core.info(`Running with options: ${yaml.dump(this.options)}`);
 
     this.ensurePathExists(this.templatePath);
@@ -95,16 +95,16 @@ export class BulkIssueCreator {
     }
 
     if (this.comment) {
-      this.createComments();
+      await this.createComments();
     } else {
-      this.createIssues();
+      await this.createIssues();
     }
   }
 
-  private createIssues() {
+  private async createIssues() {
     let response;
     for (const issue of this.issues) {
-      response = this.octokit.rest.issues.create({
+      response = await this.octokit.rest.issues.create({
         owner: issue.nwo[0],
         repo: issue.nwo[1],
         title: issue.title,
@@ -113,18 +113,19 @@ export class BulkIssueCreator {
         assignees: issue.assignees,
       });
     }
-    core.info(`Created issue ${response.data.html_url}`);
+    core.info(`Created issue ${response.html_url}`);
   }
 
-  private createComments() {
+  private async createComments() {
+    let response;
     for (const issue of this.issues) {
-      const response = this.octokit.rest.issues.createComment({
+      response = await this.octokit.rest.issues.createComment({
         owner: issue.nwo[0],
         repo: issue.nwo[1],
         issue_number: issue.number,
         body: issue.body,
       });
-      core.info(`Created comment ${response.data.html_url}`);
+      core.info(`Created comment ${response.html_url}`);
     }
   }
 
