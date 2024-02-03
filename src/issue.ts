@@ -2,11 +2,10 @@ import * as mustache from "mustache";
 
 export interface IssueData {
   title: string;
-  body: string;
-  labels: string;
-  assignees: string;
-  repository: string;
-  issue_number: string;
+  labels?: string;
+  assignees?: string;
+  repository?: string;
+  issue_number?: string;
   [key: string]: string | string;
 }
 
@@ -28,11 +27,11 @@ export class Issue {
   }
 
   get labels() {
-    return this.data.labels.split(",").map((label) => label.trim());
+    return this.data.labels?.split(",").map((label) => label.trim());
   }
 
   get assignees() {
-    return this.data.assignees.split(",").map((assignee) => assignee.trim());
+    return this.data.assignees?.split(",").map((assignee) => assignee.trim());
   }
 
   get repository() {
