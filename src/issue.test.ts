@@ -1,17 +1,17 @@
 import { Issue } from "./issue";
 
 describe("Issue", () => {
-  const data = { 
-    title: "Hello, {{name}}!", 
+  const data = {
+    title: "Hello, {{name}}!",
     name: "GitHub Copilot",
     labels: "bug, enhancement",
     assignees: "octocat, hubot",
     repository: "octocat/hello-world",
-    issue_number: "1"
+    issue_number: "1",
   };
   const template = "Hello, {{name}}!";
   let issue: Issue;
-  
+
   beforeEach(() => {
     issue = new Issue(data, template);
   });

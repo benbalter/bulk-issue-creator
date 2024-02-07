@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
     "target": "es2022",
-    "module": "node16",
+    "module": "ESNext",
     "lib": ["ES2022"],
-    "moduleResolution": "nodeNext",
+    "moduleResolution": "Node",
     "rootDir": ".",
     "outDir": "build",
     "allowSyntheticDefaultImports": true,
@@ -18,6 +18,13 @@
     "noImplicitAny": false,
     "noImplicitThis": false,
     "strictNullChecks": false,
+    "allowJs": true,
+    "esModuleInterop": true,
   },
   "include": ["src/**/*", "__tests__/**/*"],
+  "ts-node": {
+    "transpileOnly": true,
+    "files": true,
+    "experimentalResolver": true,
+  },
 }

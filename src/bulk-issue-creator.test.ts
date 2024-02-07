@@ -3,6 +3,10 @@ import { BulkIssueCreator } from "./bulk-issue-creator";
 describe("BulkIssueCreator", () => {
   let bulkIssueCreator: BulkIssueCreator;
 
+  beforeAll(() => {
+    process.env.INPUT_TOKEN = "TOKEN";
+  });
+
   beforeEach(() => {
     bulkIssueCreator = new BulkIssueCreator();
   });
@@ -10,11 +14,9 @@ describe("BulkIssueCreator", () => {
   describe("constructor", () => {
     it("should initialize with default options", () => {
       expect(bulkIssueCreator.templatePath).toEqual(
-        "./config/template.md.mustache"
+        "./config/template.md.mustache",
       );
-      expect(bulkIssueCreator.csvPath).toEqual(
-        "./config/data.csv"
-      );
+      expect(bulkIssueCreator.csvPath).toEqual("./config/data.csv");
       expect(bulkIssueCreator.write).toEqual(false);
       expect(bulkIssueCreator.comment).toEqual(false);
     });
@@ -27,21 +29,19 @@ describe("BulkIssueCreator", () => {
         comment: true,
         github_token: "TOKEN",
       };
-      
+
       beforeEach(() => {
         bulkIssueCreator = new BulkIssueCreator(passedOptions);
       });
 
       it("should init with template path", () => {
         expect(bulkIssueCreator.templatePath).toEqual(
-          passedOptions.template_path
+          passedOptions.template_path,
         );
       });
 
       it("should init with csv path", () => {
-        expect(bulkIssueCreator.csvPath).toEqual(
-          passedOptions.csv_path
-        );
+        expect(bulkIssueCreator.csvPath).toEqual(passedOptions.csv_path);
       });
 
       it("should init with write option", () => {

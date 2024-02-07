@@ -1,4 +1,4 @@
-import * as mustache from "mustache";
+import mustache from "mustache";
 
 export interface IssueData {
   title: string;

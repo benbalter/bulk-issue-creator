@@ -1,12 +1,12 @@
 import * as fs from "fs";
 import * as core from "@actions/core";
 import * as github from "@actions/github";
-import * as changeCase from "change-case";
 import { parse } from "csv-parse/sync";
 import { Issue } from "./issue";
 import * as yaml from "js-yaml";
 import { RequestError } from "@octokit/request-error";
 import { GitHub } from "@actions/github/lib/utils";
+import camelCase from "camelcase";
 
 interface Options {
   template_path?: string;
@@ -40,7 +40,7 @@ export class BulkIssueCreator {
     for (const key of this.optionKeys) {
       const value =
         passedOptions[key] || core.getInput(key.toUpperCase()) || null;
-      const camelCaseKey = changeCase.camelCase(key);
+      const camelCaseKey = camelCase(key);
       this.options[camelCaseKey] = this.boolOptions.includes(key)
         ? this.truthy(value)
         : value;
