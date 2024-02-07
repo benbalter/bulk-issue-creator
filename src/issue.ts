@@ -1,4 +1,5 @@
 import mustache from "mustache";
+import * as core from "@actions/core";
 
 export interface IssueData {
   title: string;
@@ -31,18 +32,29 @@ export class Issue {
   }
 
   get assignees() {
-    return this.data.assignees?.split(",").map((assignee) => assignee.trim());
+    const assignees = this.data.assignees || this.data.assignee;
+    if (!assignees) {
+      return [];
+    }
+    return assignees.split(",").map((assignee) => assignee.trim().replace("@", ""));
   }
 
   get repository() {
+    if (!this.data.repository) {
+      core.warning("Repository not found in row: ", this.data);
+    };
     return this.data.repository;
   }
 
   get number() {
-    return this.data.issue_number;
+    return Number(this.data.issue_number);
   }
 
   get nwo() {
-    return this.data.repository.split("/");
+    const parts = this.repository?.split("/");
+    if (parts.length !== 2) {
+      core.warning(`Invalid repository format: ${this.repository}`);
+    }
+    return parts;
   }
 }

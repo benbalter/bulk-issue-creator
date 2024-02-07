@@ -75,8 +75,9 @@ export class BulkIssueCreator {
   }
 
   get issues() {
-    const issues = [];
-    for (const row of this.data) {
+    const issues: Issue[] = [];
+    const data = this.data;
+    for (const row of data) {
       const issue = new Issue(row, this.template);
       issues.push(issue);
     }
@@ -104,6 +105,13 @@ export class BulkIssueCreator {
   private async createIssues() {
     let response;
     for (const issue of this.issues) {
+      if (!issue.title) {
+        core.warning(
+          "Issue title not found: ", issue.data,
+        );
+        continue;
+      }
+      
       response = await this.octokit.rest.issues.create({
         owner: issue.nwo[0],
         repo: issue.nwo[1],
@@ -118,7 +126,15 @@ export class BulkIssueCreator {
 
   private async createComments() {
     let response;
+
     for (const issue of this.issues) {
+      if (!issue.number) {
+        core.warning(
+          "Issue number not found: ", issue.data,
+        );
+        continue;
+      }
+
       response = await this.octokit.rest.issues.createComment({
         owner: issue.nwo[0],
         repo: issue.nwo[1],

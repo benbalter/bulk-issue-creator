@@ -1,7 +1,7 @@
-import { Issue } from "./issue";
+import { Issue, type IssueData } from "./issue";
 
 describe("Issue", () => {
-  const data = {
+  const data: IssueData = {
     title: "Hello, {{name}}!",
     name: "GitHub Copilot",
     labels: "bug, enhancement",
@@ -42,7 +42,7 @@ describe("Issue", () => {
   });
 
   it("should return the issue number", () => {
-    const expected = "1";
+    const expected = 1;
     expect(issue.number).toEqual(expected);
   });
 
