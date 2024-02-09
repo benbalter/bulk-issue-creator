@@ -8,7 +8,8 @@
   },
   "scripts": {
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --coverage",
-    "fix": "eslint --fix --ext .ts . && prettier --write ."
+    "fix": "eslint --fix --ext .ts . && prettier --write .",
+    "build": "ncc build src/main.ts -o dist"
   },
   "repository": {
     "type": "git",
@@ -26,6 +27,7 @@
     "@types/node": "^20.11.16",
     "@typescript-eslint/eslint-plugin": "^6.20.0",
     "@typescript-eslint/parser": "^6.20.0",
+    "@vercel/ncc": "^0.38.1",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-jest": "^27.6.3",
@@ -41,11 +43,15 @@
     "@actions/github": "^6.0.0",
     "@octokit/rest": "^20.0.2",
     "camelcase": "^8.0.0",
+    "commander": "^12.0.0",
     "csv-parse": "^5.5.3",
     "install": "^0.13.0",
     "js-yaml": "^4.1.0",
     "mustache": "^4.2.0",
     "npm": "^10.4.0"
   },
-  "type": "module"
+  "type": "module",
+  "bin": {
+    "bulk-issue-creator": "dist/index.js"
+  }
 }

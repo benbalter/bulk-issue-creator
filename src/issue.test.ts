@@ -1,4 +1,4 @@
-import { Issue, type IssueData } from "./issue";
+import { Issue, type IssueData } from "./issue.js";
 
 describe("Issue", () => {
   const data: IssueData = {

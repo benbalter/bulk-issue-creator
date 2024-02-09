@@ -2,9 +2,10 @@ import * as fs from "fs";
 import * as core from "@actions/core";
 import * as github from "@actions/github";
 import { parse } from "csv-parse/sync";
-import { Issue } from "./issue";
+import { Issue } from "./issue.js";
 import * as yaml from "js-yaml";
 import { RequestError } from "@octokit/request-error";
+//@ts-expect-error Missing Type error (TS2307)
 import { GitHub } from "@actions/github/lib/utils";
 import camelCase from "camelcase";
 import fetchMock from "fetch-mock";
@@ -12,11 +13,11 @@ import fetchMock from "fetch-mock";
 export const sandbox = fetchMock.sandbox();
 
 interface Options {
-  template_path?: string;
-  csv_path?: string;
+  templatePath?: string;
+  csvPath?: string;
   write?: boolean;
   comment?: boolean;
-  github_token?: string;
+  githubToken?: string;
 }
 
 export class BulkIssueCreator {
@@ -41,20 +42,22 @@ export class BulkIssueCreator {
 
   constructor(passedOptions: Options = {}) {
     for (const key of this.optionKeys) {
-      const value =
-        passedOptions[key] || core.getInput(key.toUpperCase()) || null;
       const camelCaseKey = camelCase(key);
+      const value =
+        passedOptions[camelCaseKey] ||
+        core.getInput(key.toUpperCase()) ||
+        process.env[key.toUpperCase()] ||
+        null;
       this.options[camelCaseKey] = this.boolOptions.includes(key)
         ? this.truthy(value)
         : value;
     }
 
-    const token = core.getInput("token", { required: true });
     let options = {};
     if (process.env.NODE_ENV === "test") {
       options = { request: { fetch: sandbox } };
     }
-    this.octokit = github.getOctokit(token, options);
+    this.octokit = github.getOctokit(this.options.githubToken, options);
   }
 
   get templatePath() {
@@ -91,14 +94,23 @@ export class BulkIssueCreator {
     return issues;
   }
 
+  private get sanitizedOptions() {
+    return {
+      templatePath: this.templatePath,
+      csvPath: this.csvPath,
+      write: this.write,
+      comment: this.comment,
+    };
+  }
+
   async run() {
-    core.info(`Running with options: ${yaml.dump(this.options)}`);
+    core.info(`Running with options:\n${yaml.dump(this.sanitizedOptions)}`);
 
     this.ensurePathExists(this.templatePath);
     this.ensurePathExists(this.csvPath);
 
     if (this.readonly) {
-      this.previewOutput();
+      await this.previewOutput();
       return;
     }
 
@@ -159,16 +171,19 @@ export class BulkIssueCreator {
     }
   }
 
-  private repoExists(nwo: string) {
+  private async repoExists(nwo: string) {
     const [owner, repo] = nwo.split("/");
     try {
-      this.octokit.rest.repos.get({
+      await this.octokit.rest.repos.get({
         owner,
         repo,
       });
     } catch (error) {
       if (error instanceof RequestError && error.status === 404) {
         core.warning(`Repository ${nwo} does not exist. Skipping...`);
+        return false;
+      } else if (error instanceof RequestError && error.status === 401) {
+        core.warning(`Unauthorized access to repository ${nwo}. Skipping...`);
         return false;
       } else {
         throw error;
@@ -182,17 +197,17 @@ export class BulkIssueCreator {
     return value === true || value === "true";
   }
 
-  private previewOutput() {
+  private async previewOutput() {
     core.info(
-      "Running in READ ONLY mode. Pass `WRITE=true` environmental variable to write.",
+      "Running in READ ONLY mode. Pass `write` variable to write.",
     );
     core.info(
-      `the following ${this.comment ? "comments" : "issues"} would have been created:`,
+      `The following ${this.comment ? "comments" : "issues"} would have been created:\n`,
     );
 
     for (const issue of this.issues) {
-      this.repoExists(issue.repository);
       core.info(yaml.dump(issue.data));
+      await this.repoExists(issue.repository);
     }
   }
 }

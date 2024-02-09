@@ -1,5 +1,5 @@
-import { BulkIssueCreator, sandbox } from "./bulk-issue-creator";
-import { Issue, type IssueData } from "./issue";
+import { BulkIssueCreator, sandbox } from "./bulk-issue-creator.js";
+import { Issue, type IssueData } from "./issue.js";
 
 describe("BulkIssueCreator", () => {
   let bulkIssueCreator: BulkIssueCreator;
