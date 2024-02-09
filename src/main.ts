@@ -6,20 +6,21 @@ import { Command } from "commander";
 const program = new Command();
 program.name("bulk-issue-creator");
 program.description(
-  "Create multiple issues (or comments) on GitHub from a CSV file",
+  "Bulk opens batches of issues (or comments) across GitHub repositories based on a template and CSV of values.",
 );
 program.usage("[options]");
 
 program
-  .option("-w", "--write <boolean>", "Actually, really, write issues to GitHub")
+  .option("-w, --write <boolean>", "Actually, really, write issues to GitHub")
   .option(
-    "-c",
-    "--comment <boolean>",
+    "-c, --comment <boolean>",
     "Comment on an issue instead of creating one",
   )
-  .option("-t", "--template-path <string>", "Path to the issue template")
-  .option("-d", "--csv-path <string>", "Path to the CSV file")
-  .option("-g", "--github-token <string>", "GitHub token");
+  .option("-t --template-path <string>", "Path to the issue template")
+  .option("-d --csv-path <string>", "Path to the CSV file")
+  .option("-g --github-token <string>", "GitHub token");
+
+program.parse();
 
 const options = program.opts();
 const bulkIssueCreator = new BulkIssueCreator(options);
