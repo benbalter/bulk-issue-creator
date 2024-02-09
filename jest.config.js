@@ -15,4 +15,8 @@ export default {
     "!src/**/*.d.ts",
     "!src/**/*.d.mts",
   ],
+  "coveragePathIgnorePatterns": [
+    "/node_modules/",
+  ],
 };
+
