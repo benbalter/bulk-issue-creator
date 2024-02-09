@@ -1,7 +1,7 @@
 ---
 name: GitHub bulk issue creator
 description:
-  Bulk opens batches of issues across GitHub repositories based on a template
+  Bulk opens batches of issues (or comments) across GitHub repositories based on a template
   and CSV of values.
 runs:
   using: 'node20'
