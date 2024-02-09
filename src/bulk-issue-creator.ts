@@ -7,6 +7,7 @@ import * as yaml from "js-yaml";
 import { RequestError } from "@octokit/request-error";
 import { GitHub } from "@actions/github/lib/utils";
 import camelCase from "camelcase";
+import fetchMock from "fetch-mock";
 
 interface Options {
   template_path?: string;
@@ -47,7 +48,11 @@ export class BulkIssueCreator {
     }
 
     const token = core.getInput("token", { required: true });
-    this.octokit = github.getOctokit(token);
+    let options = {};
+    if (process.env.NODE_ENV === "test") {
+      options = { request: { fetch: fetchMock.sandbox() } };
+    }
+    this.octokit = github.getOctokit(token, options);
   }
 
   get templatePath() {
@@ -111,7 +116,7 @@ export class BulkIssueCreator {
         );
         continue;
       }
-      
+
       response = await this.octokit.rest.issues.create({
         owner: issue.nwo[0],
         repo: issue.nwo[1],

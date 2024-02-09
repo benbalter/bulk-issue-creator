@@ -86,11 +86,17 @@ describe("BulkIssueCreator", () => {
       process.env.INPUT_WRITE = "true";
     });
 
+    afterEach(() => {
+    });
+
     it("should run outside preview mode", async () => {
+
+     
       await bulkIssueCreator.run();
     });
 
     it("should create issues", async () => {
+      //await bulkIssueCreator.run();
     });
 
     it("should create comments", async () => {
