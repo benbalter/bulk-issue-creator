@@ -1,11 +1,16 @@
-import { BulkIssueCreator } from "./bulk-issue-creator";
+import { BulkIssueCreator, sandbox } from "./bulk-issue-creator";
 import { Issue, type IssueData } from "./issue";
+
 
 describe("BulkIssueCreator", () => {
   let bulkIssueCreator: BulkIssueCreator;
 
   beforeAll(() => {
     process.env.INPUT_TOKEN = "TOKEN";
+    sandbox.get("https://api.github.com/repos/owner/repo", {
+      name: "repo",
+      owner: { login: "owner" },
+    });
   });
 
   beforeEach(() => {
@@ -82,20 +87,38 @@ describe("BulkIssueCreator", () => {
   });
 
   describe("when write option is true", () => {
-    beforeEach(() => {
+    beforeAll(() => {
       process.env.INPUT_WRITE = "true";
     });
 
-    afterEach(() => {});
-
-    it("should run outside preview mode", async () => {
-      await bulkIssueCreator.run();
-    });
-
     it("should create issues", async () => {
-      //await bulkIssueCreator.run();
+      const mock = sandbox.post("https://api.github.com/repos/owner/repo/issues",
+      {
+        title: "Test issue",
+        body: "Hello World!",
+        labels: ["bug", "enhancement"],
+        assignees: ["user1", "user2"],
+        owner: "owner",
+        repo: "repo",
+      });
+      await bulkIssueCreator.run();
+      expect(mock.called).toBeTruthy();
     });
 
-    it("should create comments", async () => {});
+    describe("when comment option is true", () => {
+      beforeAll(() => {
+        process.env.INPUT_COMMENT = "true";
+      });
+
+      it("should create comments", async () => {
+        const mock = sandbox.post("https://api.github.com/repos/owner/repo/issues/1/comments", {
+          body: "Hello World!",
+          owner: "owner",
+          repo: "repo",
+        });
+        await bulkIssueCreator.run();
+        expect(mock.called).toBeTruthy();
+      });
+    });
   });
 });

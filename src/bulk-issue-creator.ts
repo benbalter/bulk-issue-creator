@@ -9,6 +9,8 @@ import { GitHub } from "@actions/github/lib/utils";
 import camelCase from "camelcase";
 import fetchMock from "fetch-mock";
 
+export const sandbox = fetchMock.sandbox();
+
 interface Options {
   template_path?: string;
   csv_path?: string;
@@ -50,7 +52,7 @@ export class BulkIssueCreator {
     const token = core.getInput("token", { required: true });
     let options = {};
     if (process.env.NODE_ENV === "test") {
-      options = { request: { fetch: fetchMock.sandbox() } };
+      options = { request: { fetch: sandbox } };
     }
     this.octokit = github.getOctokit(token, options);
   }
