@@ -36,13 +36,15 @@ export class Issue {
     if (!assignees) {
       return [];
     }
-    return assignees.split(",").map((assignee) => assignee.trim().replace("@", ""));
+    return assignees
+      .split(",")
+      .map((assignee) => assignee.trim().replace("@", ""));
   }
 
   get repository() {
     if (!this.data.repository) {
       core.warning("Repository not found in row: ", this.data);
-    };
+    }
     return this.data.repository;
   }
 

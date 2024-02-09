@@ -111,9 +111,7 @@ export class BulkIssueCreator {
     let response;
     for (const issue of this.issues) {
       if (!issue.title) {
-        core.warning(
-          "Issue title not found: ", issue.data,
-        );
+        core.warning("Issue title not found: ", issue.data);
         continue;
       }
 
@@ -134,9 +132,7 @@ export class BulkIssueCreator {
 
     for (const issue of this.issues) {
       if (!issue.number) {
-        core.warning(
-          "Issue number not found: ", issue.data,
-        );
+        core.warning("Issue number not found: ", issue.data);
         continue;
       }
 

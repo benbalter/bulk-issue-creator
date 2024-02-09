@@ -66,12 +66,12 @@ describe("BulkIssueCreator", () => {
 
   it("should return the issues", () => {
     const data: IssueData = {
-      "assignees": "user1, user2",
-      "issue_number": "1",
-      "labels": "bug, enhancement",
-      "name": "World",
-      "repository": "owner/repo",
-      "title": "Test issue"
+      assignees: "user1, user2",
+      issue_number: "1",
+      labels: "bug, enhancement",
+      name: "World",
+      repository: "owner/repo",
+      title: "Test issue",
     };
     const issue = new Issue(data, "Hello {{name}}!");
     expect(bulkIssueCreator.issues).toEqual([issue]);
@@ -86,12 +86,9 @@ describe("BulkIssueCreator", () => {
       process.env.INPUT_WRITE = "true";
     });
 
-    afterEach(() => {
-    });
+    afterEach(() => {});
 
     it("should run outside preview mode", async () => {
-
-     
       await bulkIssueCreator.run();
     });
 
@@ -99,7 +96,6 @@ describe("BulkIssueCreator", () => {
       //await bulkIssueCreator.run();
     });
 
-    it("should create comments", async () => {
-    });
+    it("should create comments", async () => {});
   });
 });
