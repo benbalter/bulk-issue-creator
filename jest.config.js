@@ -16,4 +16,5 @@ export default {
     "!src/**/*.d.mts",
   ],
   coveragePathIgnorePatterns: ["/node_modules/"],
+  
 };
