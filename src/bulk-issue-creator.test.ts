@@ -1,7 +1,6 @@
 import { BulkIssueCreator, sandbox } from "./bulk-issue-creator";
 import { Issue, type IssueData } from "./issue";
 
-
 describe("BulkIssueCreator", () => {
   let bulkIssueCreator: BulkIssueCreator;
 
@@ -92,15 +91,17 @@ describe("BulkIssueCreator", () => {
     });
 
     it("should create issues", async () => {
-      const mock = sandbox.post("https://api.github.com/repos/owner/repo/issues",
-      {
-        title: "Test issue",
-        body: "Hello World!",
-        labels: ["bug", "enhancement"],
-        assignees: ["user1", "user2"],
-        owner: "owner",
-        repo: "repo",
-      });
+      const mock = sandbox.post(
+        "https://api.github.com/repos/owner/repo/issues",
+        {
+          title: "Test issue",
+          body: "Hello World!",
+          labels: ["bug", "enhancement"],
+          assignees: ["user1", "user2"],
+          owner: "owner",
+          repo: "repo",
+        },
+      );
       await bulkIssueCreator.run();
       expect(mock.called).toBeTruthy();
     });
@@ -111,11 +112,14 @@ describe("BulkIssueCreator", () => {
       });
 
       it("should create comments", async () => {
-        const mock = sandbox.post("https://api.github.com/repos/owner/repo/issues/1/comments", {
-          body: "Hello World!",
-          owner: "owner",
-          repo: "repo",
-        });
+        const mock = sandbox.post(
+          "https://api.github.com/repos/owner/repo/issues/1/comments",
+          {
+            body: "Hello World!",
+            owner: "owner",
+            repo: "repo",
+          },
+        );
         await bulkIssueCreator.run();
         expect(mock.called).toBeTruthy();
       });
