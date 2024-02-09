@@ -19,7 +19,7 @@
     "noImplicitThis": false,
     "strictNullChecks": false,
     "allowJs": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
   },
   "include": ["src/**/*", "__tests__/**/*"],
 }
