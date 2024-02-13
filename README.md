@@ -49,7 +49,7 @@ Don't want to deal with the hassle of setting up a local Ruby environment? No wo
          - name: Checkout template and data
            uses: actions/checkout@v2
          - name: Create bulk issues
-           uses: benbalter/bulk-issue-creator@main
+           uses: benbalter/bulk-issue-creator@v2
            with:
              write: ${{ github.event.inputs.write }}
              github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
