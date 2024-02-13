@@ -4,8 +4,11 @@ import { Issue, type IssueData } from "./issue.js";
 describe("BulkIssueCreator", () => {
   let bulkIssueCreator: BulkIssueCreator;
 
+  beforeEach(() => {
+    process.env.INPUT_GITHUB_TOKEN = "TOKEN";
+  });
+
   beforeAll(() => {
-    process.env.INPUT_TOKEN = "TOKEN";
     sandbox.get("https://api.github.com/repos/owner/repo", {
       name: "repo",
       owner: { login: "owner" },
@@ -28,25 +31,26 @@ describe("BulkIssueCreator", () => {
 
     describe("when options are passed", () => {
       const passedOptions = {
-        template_path: "./custom/template.md.mustache",
-        csv_path: "./custom/data.csv",
+        templatePath: "./custom/template.md.mustache",
+        csvPath: "./custom/data.csv",
         write: true,
         comment: true,
-        github_token: "TOKEN",
+        githubToken: "TOKEN2",
       };
 
       beforeEach(() => {
+        process.env.INPUT_GITHUB_TOKEN = "";
         bulkIssueCreator = new BulkIssueCreator(passedOptions);
       });
 
       it("should init with template path", () => {
         expect(bulkIssueCreator.templatePath).toEqual(
-          passedOptions.template_path,
+          passedOptions.templatePath,
         );
       });
 
       it("should init with csv path", () => {
-        expect(bulkIssueCreator.csvPath).toEqual(passedOptions.csv_path);
+        expect(bulkIssueCreator.csvPath).toEqual(passedOptions.csvPath);
       });
 
       it("should init with write option", () => {
@@ -55,6 +59,39 @@ describe("BulkIssueCreator", () => {
 
       it("should init with comment option", () => {
         expect(bulkIssueCreator.comment).toEqual(true);
+      });
+
+      it("should init with github token", () => {
+        expect(bulkIssueCreator.octokit).toBeDefined();
+      });
+    });
+
+    describe("options passed as environmental variables", () => {
+      beforeAll(() => {
+        process.env.INPUT_GITHUB_TOKEN = "";
+        process.env.TEMPLATE_PATH = "./env/template.md.mustache";
+        process.env.CSV_PATH = "./env/data.csv";
+        process.env.GITHUB_TOKEN = "TOKEN3";
+      });
+
+      afterAll(() => {
+        delete process.env.TEMPLATE_PATH;
+        delete process.env.CSV_PATH;
+        delete process.env.GITHUB_TOKEN;
+      });
+
+      beforeEach(() => {
+        bulkIssueCreator = new BulkIssueCreator();
+      });
+
+      it("should init with template path", () => {
+        expect(bulkIssueCreator.templatePath).toEqual(
+          "./env/template.md.mustache",
+        );
+      });
+
+      it("should init with csv path", () => {
+        expect(bulkIssueCreator.csvPath).toEqual("./env/data.csv");
       });
 
       it("should init with github token", () => {

@@ -5,8 +5,7 @@ import { parse } from "csv-parse/sync";
 import { Issue } from "./issue.js";
 import * as yaml from "js-yaml";
 import { RequestError } from "@octokit/request-error";
-//@ts-expect-error Missing Type error (TS2307)
-import { GitHub } from "@actions/github/lib/utils";
+import { GitHub } from "@actions/github/lib/utils.js";
 import camelCase from "camelcase";
 import fetchMock from "fetch-mock";
 
@@ -40,6 +39,10 @@ export class BulkIssueCreator {
     githubToken: null,
   };
 
+  // Assign options in the following order:
+  // 1. Passed options
+  // 2. Inputs from the workflow
+  // 3. Environment variables
   constructor(passedOptions: Options = {}) {
     for (const key of this.optionKeys) {
       const camelCaseKey = camelCase(key);
@@ -198,9 +201,7 @@ export class BulkIssueCreator {
   }
 
   private async previewOutput() {
-    core.info(
-      "Running in READ ONLY mode. Pass `write` variable to write.",
-    );
+    core.info("Running in READ ONLY mode. Pass `write` variable to write.");
     core.info(
       `The following ${this.comment ? "comments" : "issues"} would have been created:\n`,
     );

@@ -5503,7 +5503,7 @@ var import_endpoint = __nccwpck_require__(9440);
 var import_universal_user_agent = __nccwpck_require__(5030);
 
 // pkg/dist-src/version.js
-var VERSION = "8.1.6";
+var VERSION = "8.2.0";
 
 // pkg/dist-src/is-plain-object.js
 function isPlainObject(value) {
@@ -5647,11 +5647,17 @@ async function getResponseData(response) {
 function toErrorMessage(data) {
   if (typeof data === "string")
     return data;
+  let suffix;
+  if ("documentation_url" in data) {
+    suffix = ` - ${data.documentation_url}`;
+  } else {
+    suffix = "";
+  }
   if ("message" in data) {
     if (Array.isArray(data.errors)) {
-      return `${data.message}: ${data.errors.map(JSON.stringify).join(", ")}`;
+      return `${data.message}: ${data.errors.map(JSON.stringify).join(", ")}${suffix}`;
     }
-    return data.message;
+    return `${data.message}${suffix}`;
   }
   return `Unknown error: ${JSON.stringify(data)}`;
 }
@@ -49481,6 +49487,7 @@ var __webpack_exports__ = {};
 
 // EXTERNAL MODULE: external "fs"
 var external_fs_ = __nccwpck_require__(7147);
+var external_fs_default = /*#__PURE__*/__nccwpck_require__.n(external_fs_);
 // EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
 var core = __nccwpck_require__(2186);
 // EXTERNAL MODULE: ./node_modules/@actions/github/lib/github.js
@@ -55705,6 +55712,10 @@ class BulkIssueCreator {
         comment: false,
         githubToken: null,
     };
+    // Assign options in the following order:
+    // 1. Passed options
+    // 2. Inputs from the workflow
+    // 3. Environment variables
     constructor(passedOptions = {}) {
         for (const key of this.optionKeys) {
             const camelCaseKey = camelCase(key);
@@ -55874,20 +55885,42 @@ const {
 ;// CONCATENATED MODULE: ./src/main.ts
 
 
+
 const main_program = new Command();
 main_program.name("bulk-issue-creator");
 main_program.description("Bulk opens batches of issues (or comments) across GitHub repositories based on a template and CSV of values.");
 main_program.usage("[options]");
 main_program
-    .option("-w, --write <boolean>", "Actually, really, write issues to GitHub")
-    .option("-c, --comment <boolean>", "Comment on an issue instead of creating one")
-    .option("-t --template-path <string>", "Path to the issue template")
-    .option("-d --csv-path <string>", "Path to the CSV file")
-    .option("-g --github-token <string>", "GitHub token");
+    .command("create", { isDefault: true })
+    .description("Run the bulk issue creator to create issues or comments")
+    .option("-w, --write <boolean>", "Write issues to GitHub (default: false)")
+    .option("-c, --comment <boolean>", "Create comments instead of issues")
+    .option("-t, --template-path <string>", "Path to the template file")
+    .option("-d, --csv-path <string>", "Path to the CSV file")
+    .option("-g, --github-token <string>", "GitHub Token for authenticating with GitHub")
+    .action(() => {
+    const options = main_program.opts();
+    const bulkIssueCreator = new BulkIssueCreator(options);
+    bulkIssueCreator.run();
+});
+main_program
+    .command("init")
+    .description("Initialize the Bulk Issue Creator config folder with template and data file")
+    .option("-p, --path <string>", "Path at which to generate the config directory", "./config")
+    .action(() => {
+    const options = main_program.opts();
+    const path = options.path || "./config";
+    const files = ["template.md.mustache", "data.csv"];
+    console.log("Config Path: ", path);
+    external_fs_default().existsSync(path) || external_fs_default().mkdirSync(path);
+    for (const file of files) {
+        if (!external_fs_default().existsSync(`${path}/${file}`)) {
+            external_fs_default().writeFileSync(`${path}/${file}`, "");
+            console.log(`Created ${path}/${file}`);
+        }
+    }
+});
 main_program.parse();
-const options = main_program.opts();
-const bulkIssueCreator = new BulkIssueCreator(options);
-bulkIssueCreator.run();
 
 })();
 
