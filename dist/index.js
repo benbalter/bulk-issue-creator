@@ -55704,7 +55704,7 @@ class BulkIssueCreator {
     boolOptions = ["write", "comment"];
     defaultTemplatePath = "./config/template.md.mustache";
     defaultCsvPath = "./config/data.csv";
-    octokit;
+    _octokit;
     options = {
         templatePath: this.defaultTemplatePath,
         csvPath: this.defaultCsvPath,
@@ -55727,11 +55727,16 @@ class BulkIssueCreator {
                 ? this.truthy(value)
                 : value;
         }
-        let options = {};
-        if (process.env.NODE_ENV === "test") {
-            options = { request: { fetch: sandbox } };
+    }
+    get octokit() {
+        if (this._octokit === undefined) {
+            let options = {};
+            if (process.env.NODE_ENV === "test") {
+                options = { request: { fetch: sandbox } };
+            }
+            this._octokit = github.getOctokit(this.options.githubToken, options);
         }
-        this.octokit = github.getOctokit(this.options.githubToken, options);
+        return this._octokit;
     }
     get templatePath() {
         return this.options.templatePath || this.defaultTemplatePath;
@@ -55854,10 +55859,15 @@ class BulkIssueCreator {
     }
     async previewOutput() {
         core.info("Running in READ ONLY mode. Pass `write` variable to write.");
+        if (this.options.githubToken === null) {
+            core.info("Note: No GitHub token provided. Skipping repository existence check.");
+        }
         core.info(`The following ${this.comment ? "comments" : "issues"} would have been created:\n`);
         for (const issue of this.issues) {
             core.info(dump(issue.data));
-            await this.repoExists(issue.repository);
+            if (this.options.githubToken !== null) {
+                await this.repoExists(issue.repository);
+            }
         }
     }
 }
