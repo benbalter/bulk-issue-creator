@@ -13,10 +13,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Ruby
+      - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
+
+      - name: Install dependencies
+        run: npm install
+        
       - name: Run tests
         run: script/cibuild
