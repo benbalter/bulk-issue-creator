@@ -21,4 +21,6 @@ jobs:
           # VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: main
           LINTER_RULES_PATH: .
+          TYPESCRIPT_ES_CONFIG_FILE: .eslintrc.json
+          TYPESCRIPT_STANDARD_TSCONFIG_FILE: tsconfig.json
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
