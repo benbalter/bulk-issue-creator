@@ -91,7 +91,7 @@ Options can be passed as command-line arguments when running locally or via the 
 <!-- Options here -->
 
 | Command-line                    | GitHub Actions `with:`         | GitHub Actions `env:` (or `.env` file) | Description                                      |
-|---------------------------------|--------------------------------|----------------------------------------|--------------------------------------------------|
+| ------------------------------- | ------------------------------ | -------------------------------------- | ------------------------------------------------ |
 | `--write`                       | `write: true`                  | `WRITE: true`                          | Write issues to GitHub, defaults to preview only |
 | `--comment`                     | `comment: true`                | `COMMENT: true`                        | Create comments instead of issues                |
 | `--template-path=TEMPLATE_PATH` | `template_path: TEMPLATE_PATH` | `TEMPLATE_PATH: TEMPLATE_PATH`         | Path to the template file                        |

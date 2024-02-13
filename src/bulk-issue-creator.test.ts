@@ -100,65 +100,81 @@ describe("BulkIssueCreator", () => {
     });
   });
 
-  it("should return the contents of the template", () => {
-    const expected = "Hello {{name}}!";
-    expect(bulkIssueCreator.template).toEqual(expected);
-  });
-
-  it("should return the issues", () => {
-    const data: IssueData = {
-      assignees: "user1, user2",
-      issue_number: "1",
-      labels: "bug, enhancement",
-      name: "World",
-      repository: "owner/repo",
-      title: "Test issue",
-    };
-    const issue = new Issue(data, "Hello {{name}}!");
-    expect(bulkIssueCreator.issues).toEqual([issue]);
-  });
-
-  it("should run in preview mode", async () => {
-    await bulkIssueCreator.run();
-  });
-
-  describe("when write option is true", () => {
+  describe("with fixtures", () => {
     beforeAll(() => {
-      process.env.INPUT_WRITE = "true";
+      process.env.INPUT_TEMPLATE_PATH = "./fixtures/template.md.mustache";
+      process.env.INPUT_CSV_PATH = "./fixtures/data.csv";
     });
 
-    it("should create issues", async () => {
-      const mock = sandbox.post(
-        "https://api.github.com/repos/owner/repo/issues",
-        {
-          title: "Test issue",
-          body: "Hello World!",
-          labels: ["bug", "enhancement"],
-          assignees: ["user1", "user2"],
-          owner: "owner",
-          repo: "repo",
-        },
-      );
+    afterAll(() => {
+      delete process.env.INPUT_TEMPLATE_PATH;
+      delete process.env.INPUT_CSV_PATH;
+    });
+
+    beforeEach(() => {
+      bulkIssueCreator = new BulkIssueCreator();
+    });
+
+    it("should return the contents of the template", () => {
+      const expected = "Hello {{name}}!";
+      expect(bulkIssueCreator.template).toEqual(expected);
+    });
+
+    it("should return the issues", () => {
+      const data: IssueData = {
+        assignees: "user1, user2",
+        issue_number: "1",
+        labels: "bug, enhancement",
+        name: "World",
+        repository: "owner/repo",
+        title: "Test issue",
+      };
+      const issue = new Issue(data, "Hello {{name}}!");
+      expect(bulkIssueCreator.issues).toEqual([issue]);
+    });
+
+    it("should run in preview mode", async () => {
       await bulkIssueCreator.run();
-      expect(mock.called).toBeTruthy();
     });
 
-    describe("when comment option is true", () => {
+    describe("when write option is true", () => {
       beforeAll(() => {
-        process.env.INPUT_COMMENT = "true";
+        process.env.INPUT_WRITE = "true";
       });
 
-      it("should create comments", async () => {
+      it("should create issues", async () => {
         const mock = sandbox.post(
-          "https://api.github.com/repos/owner/repo/issues/1/comments",
+          "https://api.github.com/repos/owner/repo/issues",
           {
+            title: "Test issue",
             body: "Hello World!",
+            labels: ["bug", "enhancement"],
+            assignees: ["user1", "user2"],
             owner: "owner",
             repo: "repo",
           },
         );
         await bulkIssueCreator.run();
         expect(mock.called).toBeTruthy();
+      });
+
+      describe("when comment option is true", () => {
+        beforeAll(() => {
+          process.env.INPUT_COMMENT = "true";
+        });
+
+        it("should create comments", async () => {
+          const mock = sandbox.post(
+            "https://api.github.com/repos/owner/repo/issues/1/comments",
+            {
+              body: "Hello World!",
+              owner: "owner",
+              repo: "repo",
+            },
+          );
+          await bulkIssueCreator.run();
+          expect(mock.called).toBeTruthy();
+        });
       });
     });
   });
