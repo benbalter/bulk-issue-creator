@@ -1,16 +1,11 @@
 ---
 name: GitHub bulk issue creator
-description: Bulk opens batches of issues across GitHub repositories based on a template
+description:
+  Bulk opens batches of issues (or comments) across GitHub repositories based on a template
   and CSV of values.
 runs:
-  using: docker
-  image: Dockerfile
-  args:
-    - "${{ inputs.write }}"
-    - "${{ inputs.comment }}"
-    - "${{ inputs.template_path }}"
-    - "${{ inputs.csv_path }}"
-    - "${{ inputs.github_token }}"
+  using: "node20"
+  main: "dist/index.js"
 inputs:
   write:
     required: false
