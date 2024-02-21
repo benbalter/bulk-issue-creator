@@ -1,4 +1,5 @@
 import mustache from "mustache";
+import { Liquid } from "liquidjs";
 import * as core from "@actions/core";
 
 export interface IssueData {
@@ -24,6 +25,10 @@ export class Issue {
   }
 
   get body() {
+    if (process.env.USE_LIQUID === "true") {
+      const engine = new Liquid();
+      return engine.parseAndRenderSync(this.template, this.data);
+    }
     return mustache.render(this.template, this.data);
   }
 
