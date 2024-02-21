@@ -9,7 +9,7 @@
   "scripts": {
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --coverage",
     "fix": "eslint --fix --ext .ts . && prettier --write .",
-    "build": "ncc build src/main.ts -o dist",
+    "build": "ncc build src/main.ts -o dist -e liquidjs",
     "smoketest": "node dist/index.js --help",
     "all": "npm run fix && npm run test && npm run build && npm run smoketest"
   },

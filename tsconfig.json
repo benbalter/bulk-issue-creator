@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "es2022",
     "module": "NodeNext",
-    "lib": ["ES2022"],
+    "lib": ["ESNext"],
     "moduleResolution": "NodeNext",
     "rootDir": "./src",
     "sourceRoot": "./src",
@@ -22,5 +22,9 @@
     "allowJs": true,
     "esModuleInterop": true
   },
-  "include": ["src/**/*", "__tests__/**/*"]
+  "include": ["src/**/*", "__tests__/**/*"],
+  "exclude": ["build", "node_modules"],
+  "ts-node": {
+    "esm": true
+  }
 }
