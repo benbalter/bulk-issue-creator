@@ -1,4 +1,4 @@
-export default {
+const config = {
   testEnvironment: "node",
   preset: "ts-jest/presets/default-esm",
   transform: {
@@ -17,3 +17,5 @@ export default {
   ],
   coveragePathIgnorePatterns: ["/node_modules/"],
 };
+
+module.exports = config;

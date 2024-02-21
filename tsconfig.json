@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
-    "target": "es2022",
-    "module": "NodeNext",
+    "target": "es6",
+    "module": "ESNext",
     "lib": ["ESNext"],
-    "moduleResolution": "NodeNext",
+    "moduleResolution": "node",
     "rootDir": "./src",
     "sourceRoot": "./src",
     "outDir": "dest",
@@ -20,10 +20,10 @@
     "noImplicitThis": false,
     "strictNullChecks": false,
     "allowJs": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "types": ["node", "jest", "mocha"]
   },
   "include": ["src/**/*", "__tests__/**/*"],
-  "exclude": ["build", "node_modules"],
   "ts-node": {
     "esm": true
   }
