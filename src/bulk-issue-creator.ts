@@ -17,6 +17,7 @@ interface Options {
   write?: boolean;
   comment?: boolean;
   githubToken?: string;
+  liquid?: boolean;
 }
 
 export class BulkIssueCreator {
@@ -26,8 +27,9 @@ export class BulkIssueCreator {
     "write",
     "comment",
     "github_token",
+    "liquid",
   ];
-  boolOptions = ["write", "comment"];
+  boolOptions = ["write", "comment", "liquid"];
   defaultTemplatePath = "./config/template.md.mustache";
   defaultCsvPath = "./config/data.csv";
   _octokit: InstanceType<typeof GitHub> | undefined;
@@ -37,6 +39,7 @@ export class BulkIssueCreator {
     write: false,
     comment: false,
     githubToken: null,
+    liquid: false,
   };
 
   // Assign options in the following order:
@@ -97,7 +100,7 @@ export class BulkIssueCreator {
     const issues: Issue[] = [];
     const data = this.data;
     for (const row of data) {
-      const issue = new Issue(row, this.template);
+      const issue = new Issue(row, this.template, this.options.liquid);
       issues.push(issue);
     }
     return issues;
@@ -147,7 +150,7 @@ export class BulkIssueCreator {
         assignees: issue.assignees,
       });
     }
-    core.info(`Created issue ${response.html_url}`);
+    core.info(`Created issue ${response.data.html_url}`);
   }
 
   private async createComments() {

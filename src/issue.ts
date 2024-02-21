@@ -14,10 +14,12 @@ export interface IssueData {
 export class Issue {
   data: IssueData;
   template: string;
+  liquid: boolean;
 
-  constructor(data: IssueData, template: string) {
+  constructor(data: IssueData, template: string, liquid: boolean = false) {
     this.data = data;
     this.template = template;
+    this.liquid = liquid;
   }
 
   get title() {
@@ -25,7 +27,7 @@ export class Issue {
   }
 
   get body() {
-    if (process.env.USE_LIQUID === "true") {
+    if (this.liquid === true) {
       const engine = new Liquid();
       return engine.parseAndRenderSync(this.template, this.data);
     }

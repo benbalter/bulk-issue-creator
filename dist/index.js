@@ -56036,15 +56036,16 @@ var liquid_node_cjs = __nccwpck_require__(3385);
 
 
 class Issue {
-    constructor(data, template) {
+    constructor(data, template, liquid = false) {
         this.data = data;
         this.template = template;
+        this.liquid = liquid;
     }
     get title() {
         return mustache_mustache.render(this.data.title, this.data);
     }
     get body() {
-        if (process.env.USE_LIQUID === "true") {
+        if (this.liquid === true) {
             const engine = new liquid_node_cjs/* Liquid */.Kj();
             return engine.parseAndRenderSync(this.template, this.data);
         }
@@ -60076,8 +60077,9 @@ class BulkIssueCreator {
             "write",
             "comment",
             "github_token",
+            "liquid",
         ];
-        this.boolOptions = ["write", "comment"];
+        this.boolOptions = ["write", "comment", "liquid"];
         this.defaultTemplatePath = "./config/template.md.mustache";
         this.defaultCsvPath = "./config/data.csv";
         this.options = {
@@ -60086,6 +60088,7 @@ class BulkIssueCreator {
             write: false,
             comment: false,
             githubToken: null,
+            liquid: false,
         };
         for (const key of this.optionKeys) {
             const camelCaseKey = camelCase(key);
@@ -60130,7 +60133,7 @@ class BulkIssueCreator {
         const issues = [];
         const data = this.data;
         for (const row of data) {
-            const issue = new Issue(row, this.template);
+            const issue = new Issue(row, this.template, this.options.liquid);
             issues.push(issue);
         }
         return issues;
@@ -60177,7 +60180,7 @@ class BulkIssueCreator {
                     assignees: issue.assignees,
                 });
             }
-            core.info(`Created issue ${response.html_url}`);
+            core.info(`Created issue ${response.data.html_url}`);
         });
     }
     createComments() {
@@ -60287,6 +60290,7 @@ src_program
     .option("-c, --comment <boolean>", "Create comments instead of issues")
     .option("-t, --template-path <string>", "Path to the template file")
     .option("-d, --csv-path <string>", "Path to the CSV file")
+    .option("-l, --liquid <boolean>", "Use Liquid template engine (default: false)")
     .option("-g, --github-token <string>", "GitHub Token for authenticating with GitHub")
     .action(() => {
     const options = src_program.opts();

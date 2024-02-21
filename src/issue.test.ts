@@ -8,6 +8,7 @@ describe("Issue", () => {
     assignees: "octocat, hubot",
     repository: "octocat/hello-world",
     issue_number: "1",
+    html_url: "https://github.com/octocat/hello-world/issues/1",
   };
   const template = "Hello, {{name}}!";
   let issue: Issue;

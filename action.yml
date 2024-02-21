@@ -22,3 +22,6 @@ inputs:
   github_token:
     required: false
     description: GitHub Token for authenticating with GitHub
+  liquid:
+    required: false
+    description: Use Liquid templating engine instead of Mustache

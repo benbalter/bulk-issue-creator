@@ -19,6 +19,10 @@ program
   .option("-t, --template-path <string>", "Path to the template file")
   .option("-d, --csv-path <string>", "Path to the CSV file")
   .option(
+    "-l, --liquid <boolean>",
+    "Use Liquid template engine (default: false)",
+  )
+  .option(
     "-g, --github-token <string>",
     "GitHub Token for authenticating with GitHub",
   )

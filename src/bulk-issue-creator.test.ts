@@ -152,6 +152,7 @@ describe("BulkIssueCreator", () => {
             assignees: ["user1", "user2"],
             owner: "owner",
             repo: "repo",
+            html_url: "https://github.com/owner/repo/issues/1",
           },
         );
         await bulkIssueCreator.run();
