@@ -34,6 +34,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           CSV_PATH: ./data.csv
-          TEMPLATE_PATH: ./template-with-front-matter.md.mustache
+          TEMPLATE_PATH: ./template.md.liquid
           WRITE: true
           LIQUID: true
