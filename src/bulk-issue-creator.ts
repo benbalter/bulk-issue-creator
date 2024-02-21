@@ -169,7 +169,7 @@ export class BulkIssueCreator {
         issue_number: issue.number,
         body: issue.body,
       });
-      core.info(`Created comment ${response.html_url}`);
+      core.info(`Created comment ${response.data.html_url}`);
     }
   }
 

@@ -60144,6 +60144,7 @@ class BulkIssueCreator {
             csvPath: this.csvPath,
             write: this.write,
             comment: this.comment,
+            liquid: this.options.liquid,
         };
     }
     run() {
@@ -60197,7 +60198,7 @@ class BulkIssueCreator {
                     issue_number: issue.number,
                     body: issue.body,
                 });
-                core.info(`Created comment ${response.html_url}`);
+                core.info(`Created comment ${response.data.html_url}`);
             }
         });
     }
