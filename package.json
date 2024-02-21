@@ -2,14 +2,14 @@
   "name": "bulk-issue-creator",
   "version": "1.0.0",
   "description": "Bulk opens batches of issues (or posts comments) across GitHub repositories based on a template and CSV of values. Think of it like \"mail merge\" for GitHub issues. It can be run locally, via Codespaces, or via GitHub Actions.",
-  "main": "dist/main.js",
+  "main": "dist/index.js",
   "directories": {
     "lib": "lib"
   },
   "scripts": {
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --coverage",
     "fix": "eslint --fix --ext .ts . && prettier --write .",
-    "build": "ncc build src/main.ts -o dist",
+    "build": "ncc build src/index.ts -o dist",
     "smoketest": "node dist/index.js --help",
     "all": "npm run fix && npm run test && npm run build && npm run smoketest"
   },
@@ -26,10 +26,11 @@
   "devDependencies": {
     "@jest/globals": "^29.7.0",
     "@types/jest": "^29.5.12",
+    "@types/mocha": "^10.0.6",
     "@types/node": "^20.11.16",
     "@typescript-eslint/eslint-plugin": "^6.20.0",
     "@typescript-eslint/parser": "^6.20.0",
-    "@vercel/ncc": "^0.38.1",
+    "@vercel/ncc": "^0.38.0",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-jest": "^27.6.3",
@@ -49,10 +50,11 @@
     "csv-parse": "^5.5.3",
     "install": "^0.13.0",
     "js-yaml": "^4.1.0",
+    "liquidjs": "^10.10.1",
     "mustache": "^4.2.0",
     "npm": "^10.4.0"
   },
-  "type": "module",
+  "type": "commonjs",
   "bin": {
     "bulk-issue-creator": "dist/index.js"
   }

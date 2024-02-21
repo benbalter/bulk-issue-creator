@@ -26,6 +26,21 @@ describe("Issue", () => {
     expect(issue.body).toEqual(expected);
   });
 
+  describe("with liquid", () => {
+    beforeAll(() => {
+      process.env.USE_LIQUID = "true";
+    });
+
+    afterAll(() => {
+      delete process.env.USE_LIQUID;
+    });
+
+    it("should render the body using liquid", () => {
+      const expected = "Hello, GitHub Copilot!";
+      expect(issue.body).toEqual(expected);
+    });
+  });
+
   it("should return the labels as an array", () => {
     const expected = ["bug", "enhancement"];
     expect(issue.labels).toEqual(expected);
