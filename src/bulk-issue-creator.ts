@@ -112,6 +112,7 @@ export class BulkIssueCreator {
       csvPath: this.csvPath,
       write: this.write,
       comment: this.comment,
+      liquid: this.options.liquid,
     };
   }
 

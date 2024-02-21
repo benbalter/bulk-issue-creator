@@ -36,4 +36,4 @@ jobs:
           CSV_PATH: ./data.csv
           TEMPLATE_PATH: ./template-with-front-matter.md.mustache
           WRITE: true
-          LIQUID_ENABLED: true
+          LIQUID: true
