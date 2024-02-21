@@ -28,3 +28,12 @@ jobs:
           CSV_PATH: ./data.csv
           TEMPLATE_PATH: ./template-with-front-matter.md.mustache
           WRITE: true
+
+      - name: Create bulk issues using Liquid
+        uses: benbalter/bulk-issue-creator@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          CSV_PATH: ./data.csv
+          TEMPLATE_PATH: ./template-with-front-matter.md.mustache
+          WRITE: true
+          LIQUID_ENABLED: true
