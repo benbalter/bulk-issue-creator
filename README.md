@@ -80,7 +80,9 @@ Don't want to deal with the hassle of setting up a local Ruby environment? No wo
 
 ### Templating
 
-Templates (and issue titles) support the [Mustache syntax](https://mustache.github.io/mustache.5.html). Field names in the CSV should be lower case, and should use `_`s to separate multiple words `like_this`, instead of spaces.
+Templates (and issue titles) support the [Mustache syntax](https://mustache.github.io/mustache.5.html) syntax by default. Field names in the CSV should be lower case, and should use `_`s to separate multiple words `like_this`, instead of spaces.
+
+*Note: You can also use the slightly more advanced [Liquid templating system](https://liquidjs.com/tutorials/intro-to-liquid.html) by passing the `liquid` option (see below).*
 
 ### Advanced usage
 
