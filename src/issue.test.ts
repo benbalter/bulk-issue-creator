@@ -37,6 +37,8 @@ describe("Issue", () => {
     });
 
     it("should render the body using liquid", () => {
+      const template = '{% assign hello = "Hello," %}{{ hello }} {{ name }}!';
+      issue = new Issue(data, template, true);
       const expected = "Hello, GitHub Copilot!";
       expect(issue.body).toEqual(expected);
     });
