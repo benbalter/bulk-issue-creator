@@ -39,6 +39,7 @@
     "jest-fetch-mock": "^3.0.3",
     "prettier": "^3.2.4",
     "ts-jest": "^29.1.2",
+    "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
   },
   "dependencies": {
@@ -51,6 +52,7 @@
     "install": "^0.13.0",
     "js-yaml": "^4.1.0",
     "liquidjs": "^10.10.1",
+    "markdown-table": "^3.0.3",
     "mustache": "^4.2.0",
     "npm": "^10.4.0"
   },

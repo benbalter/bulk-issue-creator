@@ -1,45 +1,37 @@
-#!/usr/bin/env ruby
-# frozen_string_literal: true
+#!/usr/bin/env ts-node --esm
+const { execSync } = require('child_process');
+const fs = require('fs');
+const yaml = require('js-yaml');
 
-require 'terminal-table'
-require 'yaml'
+async function run() {
+  const output = execSync('node dist/index.js help create').toString();
+  const regex = /--(.*?) <(.*?)>+(.*?)\n/g;
+  const matches = [...output.matchAll(regex)];
+  const rows = [['Command line', 'GitHub Actions `with:`', 'GitHub Actions `env:`', 'Description']];
+  const inputs = {};
+  matches.forEach(match => {
+    const command = match[1];
+    const arg = `<${match[2]}>`
+    const description = match[3].trim();
+    const actions = match[1].replace(/-/g, '_');
+    const env = match[1].replace(/-/g, '_').toUpperCase();
+    rows.push([`--${command} ${arg}`, `${actions}: ${arg}`, `${env}: ${arg}`, description]);
+    inputs[actions] = { 'required': false, 'description': description }
 
-regex = /\[--(.*?)((?:=.*)?)\].*\#\s*(.*)/
-output = `bundle exec ./bin/bulk-issue-creator help create`
-matches = output.scan(regex)
+  });
+  const { markdownTable } = await import('markdown-table');
+  const table = markdownTable(rows);
 
-rows = []
-inputs = {}
-headings = ['Command line', 'GitHub Actions `with:`', 'GitHub Actions `env:`', 'Description']
-matches.each do |match|
-  arg = match[1] != ''
-  description = match[2]
+  const readme = fs.readFileSync('./README.md', 'utf8');
+  const delim = '<!-- Options here -->';
+  const newReadme = readme.replace(/<!-- Options here -->.*?####/s, `${delim}\n${table}\n\n####`);
+  fs.writeFileSync('./README.md', newReadme);
 
-  cli = "--#{match[0]}"
-  actions = match[0].tr('-', '_')
-  env = match[0].tr('-', '_').upcase
+  const actionsYml = yaml.load(fs.readFileSync('./action.yml', 'utf8'));
+  actionsYml.inputs = inputs;
+  fs.writeFileSync('./action.yml', yaml.dump(actionsYml));
 
-  inputs[actions] = { 'required' => false, 'description' => description }
+  console.log(table.toString());
+}
 
-  cli << "=#{env}" if arg
-  if arg
-    actions << ": #{env}"
-    env << ": #{env}"
-  else
-    actions << ': true'
-    env << ': true'
-  end
-
-  rows << [cli, actions, env].map { |c| "`#{c}`" }.push(description)
-end
-
-table = Terminal::Table.new rows: rows, headings: headings, style: { border: :markdown }
-
-readme = File.read('./README.md')
-delim = '<!-- Options here -->'
-readme = readme.gsub(/#{Regexp.escape(delim)}.*?####/m, "#{delim}\n#{table}\n\n####")
-File.write('./README.md', readme)
-
-actions_yml = YAML.load_file('./action.yml')
-actions_yml['inputs'] = inputs
-File.write('./action.yml', YAML.dump(actions_yml))
+run();

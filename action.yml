@@ -1,15 +1,14 @@
----
 name: GitHub bulk issue creator
-description:
-  Bulk opens batches of issues (or comments) across GitHub repositories based on a template
-  and CSV of values.
+description: >-
+  Bulk opens batches of issues (or comments) across GitHub repositories based on
+  a template and CSV of values.
 runs:
-  using: "node20"
-  main: "dist/index.js"
+  using: node20
+  main: dist/index.js
 inputs:
   write:
     required: false
-    description: Write issues to GitHub, defaults to preview only
+    description: 'Write issues to GitHub (default: false)'
   comment:
     required: false
     description: Create comments instead of issues
@@ -19,9 +18,9 @@ inputs:
   csv_path:
     required: false
     description: Path to the CSV file
+  liquid:
+    required: false
+    description: 'Use Liquid template engine (default: false)'
   github_token:
     required: false
     description: GitHub Token for authenticating with GitHub
-  liquid:
-    required: false
-    description: Use Liquid templating engine instead of Mustache

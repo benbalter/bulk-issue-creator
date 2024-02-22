@@ -91,15 +91,14 @@ _Note: You can also use the slightly more advanced [Liquid templating system](ht
 Options can be passed as command-line arguments when running locally or via the `with:` property of GitHub Actions. Both locally and when running via GitHub actions, options can also be passed via environment variables. See the table below for available options and how to pass them:
 
 <!-- Options here -->
-
-| Command-line                    | GitHub Actions `with:`         | GitHub Actions `env:` (or `.env` file) | Description                                      |
-| ------------------------------- | ------------------------------ | -------------------------------------- | ------------------------------------------------ |
-| `--write`                       | `write: true`                  | `WRITE: true`                          | Write issues to GitHub, defaults to preview only |
-| `--comment`                     | `comment: true`                | `COMMENT: true`                        | Create comments instead of issues                |
-| `--template-path=TEMPLATE_PATH` | `template_path: TEMPLATE_PATH` | `TEMPLATE_PATH: TEMPLATE_PATH`         | Path to the template file                        |
-| `--csv-path=CSV_PATH`           | `csv_path: CSV_PATH`           | `CSV_PATH: CSV_PATH`                   | Path to the CSV file                             |
-| `--github-token=GITHUB_TOKEN`   | `github_token: GITHUB_TOKEN`   | `GITHUB_TOKEN: GITHUB_TOKEN`           | GitHub Token for authenticating with GitHub      |
-| `--liquid`                      | `liquid: true`                 | `LIQUID: true`                         | Use Liquid templating instead of Mustache        |
+| Command line             | GitHub Actions `with:`  | GitHub Actions `env:`   | Description                                 |
+| ------------------------ | ----------------------- | ----------------------- | ------------------------------------------- |
+| --write <boolean>        | write: <boolean>        | WRITE: <boolean>        | Write issues to GitHub (default: false)     |
+| --comment <boolean>      | comment: <boolean>      | COMMENT: <boolean>      | Create comments instead of issues           |
+| --template-path <string> | template_path: <string> | TEMPLATE_PATH: <string> | Path to the template file                   |
+| --csv-path <string>      | csv_path: <string>      | CSV_PATH: <string>      | Path to the CSV file                        |
+| --liquid <boolean>       | liquid: <boolean>       | LIQUID: <boolean>       | Use Liquid template engine (default: false) |
+| --github-token <string>  | github_token: <string>  | GITHUB_TOKEN: <string>  | GitHub Token for authenticating with GitHub |
 
 #### Special fields
 
