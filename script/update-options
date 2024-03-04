@@ -1,35 +1,49 @@
 #!/usr/bin/env ts-node --esm
-const { execSync } = require('child_process');
-const fs = require('fs');
-const yaml = require('js-yaml');
+const { execSync } = require("child_process");
+const fs = require("fs");
+const yaml = require("js-yaml");
 
 async function run() {
-  const output = execSync('node dist/index.js help create').toString();
+  const output = execSync("node dist/index.js help create").toString();
   const regex = /--(.*?) <(.*?)>+(.*?)\n/g;
   const matches = [...output.matchAll(regex)];
-  const rows = [['Command line', 'GitHub Actions `with:`', 'GitHub Actions `env:`', 'Description']];
+  const rows = [
+    [
+      "Command line",
+      "GitHub Actions `with:`",
+      "GitHub Actions `env:`",
+      "Description",
+    ],
+  ];
   const inputs = {};
-  matches.forEach(match => {
+  matches.forEach((match) => {
     const command = match[1];
-    const arg = `<${match[2]}>`
+    const arg = `<${match[2]}>`;
     const description = match[3].trim();
-    const actions = match[1].replace(/-/g, '_');
-    const env = match[1].replace(/-/g, '_').toUpperCase();
-    rows.push([`--${command} ${arg}`, `${actions}: ${arg}`, `${env}: ${arg}`, description]);
-    inputs[actions] = { 'required': false, 'description': description }
-
+    const actions = match[1].replace(/-/g, "_");
+    const env = match[1].replace(/-/g, "_").toUpperCase();
+    rows.push([
+      `--${command} ${arg}`,
+      `${actions}: ${arg}`,
+      `${env}: ${arg}`,
+      description,
+    ]);
+    inputs[actions] = { required: false, description: description };
   });
-  const { markdownTable } = await import('markdown-table');
+  const { markdownTable } = await import("markdown-table");
   const table = markdownTable(rows);
 
-  const readme = fs.readFileSync('./README.md', 'utf8');
-  const delim = '<!-- Options here -->';
-  const newReadme = readme.replace(/<!-- Options here -->.*?####/s, `${delim}\n${table}\n\n####`);
-  fs.writeFileSync('./README.md', newReadme);
+  const readme = fs.readFileSync("./README.md", "utf8");
+  const delim = "<!-- Options here -->";
+  const newReadme = readme.replace(
+    /<!-- Options here -->.*?####/s,
+    `${delim}\n${table}\n\n####`,
+  );
+  fs.writeFileSync("./README.md", newReadme);
 
-  const actionsYml = yaml.load(fs.readFileSync('./action.yml', 'utf8'));
+  const actionsYml = yaml.load(fs.readFileSync("./action.yml", "utf8"));
   actionsYml.inputs = inputs;
-  fs.writeFileSync('./action.yml', yaml.dump(actionsYml));
+  fs.writeFileSync("./action.yml", yaml.dump(actionsYml));
 
   console.log(table.toString());
 }

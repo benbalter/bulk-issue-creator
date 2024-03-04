@@ -8,7 +8,7 @@ runs:
 inputs:
   write:
     required: false
-    description: 'Write issues to GitHub (default: false)'
+    description: "Write issues to GitHub (default: false)"
   comment:
     required: false
     description: Create comments instead of issues
@@ -20,7 +20,7 @@ inputs:
     description: Path to the CSV file
   liquid:
     required: false
-    description: 'Use Liquid template engine (default: false)'
+    description: "Use Liquid template engine (default: false)"
   github_token:
     required: false
     description: GitHub Token for authenticating with GitHub

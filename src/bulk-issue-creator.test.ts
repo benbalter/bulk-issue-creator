@@ -171,6 +171,8 @@ describe("BulkIssueCreator", () => {
               body: "Hello World!",
               owner: "owner",
               repo: "repo",
+              html_url:
+                "https://api.github.com/repos/owner/repo/issues/1#issuecomment-1",
             },
           );
           await bulkIssueCreator.run();
