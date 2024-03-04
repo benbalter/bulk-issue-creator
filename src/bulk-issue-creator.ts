@@ -150,8 +150,8 @@ export class BulkIssueCreator {
         labels: issue.labels,
         assignees: issue.assignees,
       });
+      core.info(`Created issue ${response.data.html_url}`);
     }
-    core.info(`Created issue ${response.data.html_url}`);
   }
 
   private async createComments() {
