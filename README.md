@@ -91,6 +91,7 @@ _Note: You can also use the slightly more advanced [Liquid templating system](ht
 Options can be passed as command-line arguments when running locally or via the `with:` property of GitHub Actions. Both locally and when running via GitHub actions, options can also be passed via environment variables. See the table below for available options and how to pass them:
 
 <!-- Options here -->
+
 | Command line             | GitHub Actions `with:`  | GitHub Actions `env:`   | Description                                 |
 | ------------------------ | ----------------------- | ----------------------- | ------------------------------------------- |
 | --write <boolean>        | write: <boolean>        | WRITE: <boolean>        | Write issues to GitHub (default: false)     |
