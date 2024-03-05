@@ -100,6 +100,33 @@ describe("BulkIssueCreator", () => {
     });
   });
 
+  describe("repoExists", () => {
+    beforeAll(() => {
+      sandbox.reset();
+    });
+
+    it("should return true if the repository exists", async () => {
+      sandbox.get("https://api.github.com/repos/owner/repo", {
+        name: "repo",
+        owner: { login: "owner" },
+      });
+      const result = await bulkIssueCreator.repoExists("owner/repo");
+      expect(result).toEqual(true);
+    });
+
+    it("should return false if the repository does not exist", async () => {
+      sandbox.get("https://api.github.com/repos/owner/not-repo", 404);
+      const result = await bulkIssueCreator.repoExists("owner/not-repo");
+      expect(result).toEqual(false);
+    });
+
+    it("should return false if the request is unauthorized", async () => {
+      sandbox.get("https://api.github.com/repos/owner/secret-repo", 401);
+      const result = await bulkIssueCreator.repoExists("owner/secret-repo");
+      expect(result).toEqual(false);
+    });
+  });
+
   describe("with fixtures", () => {
     beforeAll(() => {
       process.env.INPUT_TEMPLATE_PATH = "./fixtures/template.md.mustache";
@@ -159,6 +186,17 @@ describe("BulkIssueCreator", () => {
         expect(mock.called).toBeTruthy();
       });
 
+      it("Should handle request errors", async () => {
+        sandbox.reset();
+        sandbox.post("https://api.github.com/repos/owner/repo/issues", {
+          body: "Issues disabled",
+          status: 410,
+        });
+        await expect(async () => {
+          bulkIssueCreator.run();
+        }).not.toThrow();
+      });
+
       describe("when comment option is true", () => {
         beforeAll(() => {
           process.env.INPUT_COMMENT = "true";
@@ -177,6 +215,17 @@ describe("BulkIssueCreator", () => {
           );
           await bulkIssueCreator.run();
           expect(mock.called).toBeTruthy();
+        });
+
+        it("Should handle request errors", async () => {
+          sandbox.reset();
+          sandbox.post(
+            "https://api.github.com/repos/owner/repo/issues/1/comments",
+            { body: "Issues disabled", status: 410 },
+          );
+          await expect(async () => {
+            bulkIssueCreator.run();
+          }).not.toThrow();
         });
       });
     });
