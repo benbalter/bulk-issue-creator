@@ -56082,26 +56082,26 @@ var liquid_node_cjs = __nccwpck_require__(3385);
 
 class Issue {
     constructor(data, template, liquid = false) {
-        this.data = data;
+        this._data = data;
         this.template = template;
         this.liquid = liquid;
     }
     get title() {
-        return mustache_mustache.render(this.data.title, this.data);
+        return mustache_mustache.render(this._data.title, this._data);
     }
     get body() {
         if (this.liquid === true) {
             const engine = new liquid_node_cjs/* Liquid */.Kj();
-            return engine.parseAndRenderSync(this.template, this.data);
+            return engine.parseAndRenderSync(this.template, this._data);
         }
-        return mustache_mustache.render(this.template, this.data);
+        return mustache_mustache.render(this.template, this._data);
     }
     get labels() {
         var _a;
-        return (_a = this.data.labels) === null || _a === void 0 ? void 0 : _a.split(",").map((label) => label.trim());
+        return (_a = this._data.labels) === null || _a === void 0 ? void 0 : _a.split(",").map((label) => label.trim());
     }
     get assignees() {
-        const assignees = this.data.assignees || this.data.assignee;
+        const assignees = this._data.assignees || this._data.assignee;
         if (!assignees) {
             return [];
         }
@@ -56110,13 +56110,13 @@ class Issue {
             .map((assignee) => assignee.trim().replace("@", ""));
     }
     get repository() {
-        if (!this.data.repository) {
-            core.warning("Repository not found in row: ", this.data);
+        if (!this._data.repository) {
+            core.warning("Repository not found in row: ", this._data);
         }
-        return this.data.repository.replace("https://github.com/", "");
+        return this._data.repository.replace("https://github.com/", "");
     }
     get number() {
-        return Number(this.data.issue_number);
+        return Number(this._data.issue_number);
     }
     get nwo() {
         var _a;
@@ -56125,6 +56125,9 @@ class Issue {
             core.warning(`Invalid repository format: ${this.repository}`);
         }
         return parts;
+    }
+    get data() {
+        return Object.assign(Object.assign({}, this._data), { title: this.title, body: this.body, labels: this.labels, assignees: this.assignees, repository: this.repository, number: this.number, nwo: this.nwo });
     }
 }
 
