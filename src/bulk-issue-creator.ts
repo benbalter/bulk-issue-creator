@@ -4,10 +4,10 @@ import * as github from "@actions/github";
 import { parse } from "csv-parse/sync";
 import { Issue } from "./issue.js";
 import * as yaml from "js-yaml";
-import { RequestError } from "@octokit/request-error";
 import { GitHub } from "@actions/github/lib/utils.js";
 import camelCase from "camelcase";
 import fetchMock from "fetch-mock";
+import { RestEndpointMethodTypes } from "@octokit/plugin-rest-endpoint-methods";
 
 export const sandbox = fetchMock.sandbox();
 
@@ -135,27 +135,38 @@ export class BulkIssueCreator {
   }
 
   private async createIssues() {
-    let response;
+    let response: RestEndpointMethodTypes["issues"]["create"]["response"];
+
     for (const issue of this.issues) {
       if (!issue.title) {
         core.warning("Issue title not found: ", issue.data);
         continue;
       }
 
-      response = await this.octokit.rest.issues.create({
-        owner: issue.nwo[0],
-        repo: issue.nwo[1],
-        title: issue.title,
-        body: issue.body,
-        labels: issue.labels,
-        assignees: issue.assignees,
-      });
+      try {
+        response = await this.octokit.rest.issues.create({
+          owner: issue.nwo[0],
+          repo: issue.nwo[1],
+          title: issue.title,
+          body: issue.body,
+          labels: issue.labels,
+          assignees: issue.assignees,
+        });
+      } catch (error) {
+        if (error.status !== undefined) {
+          core.warning(
+            `Error creating issue for ${issue.nwo}: ${error.message} (${error.status})`,
+          );
+          continue;
+        }
+        throw error;
+      }
       core.info(`Created issue ${response.data.html_url}`);
     }
   }
 
   private async createComments() {
-    let response;
+    let response: RestEndpointMethodTypes["issues"]["createComment"]["response"];
 
     for (const issue of this.issues) {
       if (!issue.number) {
@@ -163,12 +174,22 @@ export class BulkIssueCreator {
         continue;
       }
 
-      response = await this.octokit.rest.issues.createComment({
-        owner: issue.nwo[0],
-        repo: issue.nwo[1],
-        issue_number: issue.number,
-        body: issue.body,
-      });
+      try {
+        response = await this.octokit.rest.issues.createComment({
+          owner: issue.nwo[0],
+          repo: issue.nwo[1],
+          issue_number: issue.number,
+          body: issue.body,
+        });
+      } catch (error) {
+        if (error.status !== undefined) {
+          core.warning(
+            `Error creating comment for ${issue.nwo}: ${error.message} (${error.status})`,
+          );
+          continue;
+        }
+        throw error;
+      }
       core.info(`Created comment ${response.data.html_url}`);
     }
   }
@@ -184,7 +205,7 @@ export class BulkIssueCreator {
     }
   }
 
-  private async repoExists(nwo: string) {
+  async repoExists(nwo: string) {
     const [owner, repo] = nwo.split("/");
     try {
       await this.octokit.rest.repos.get({
@@ -192,10 +213,10 @@ export class BulkIssueCreator {
         repo,
       });
     } catch (error) {
-      if (error instanceof RequestError && error.status === 404) {
+      if (error.status !== undefined && error.status === 404) {
         core.warning(`Repository ${nwo} does not exist. Skipping...`);
         return false;
-      } else if (error instanceof RequestError && error.status === 401) {
+      } else if (error.status !== undefined && error.status === 401) {
         core.warning(`Unauthorized access to repository ${nwo}. Skipping...`);
         return false;
       } else {
