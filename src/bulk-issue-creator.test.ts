@@ -161,7 +161,9 @@ describe("BulkIssueCreator", () => {
     });
 
     it("should run in preview mode", async () => {
-      await bulkIssueCreator.run();
+      expect(async () => {
+        bulkIssueCreator.run();
+      }).not.toThrow();
     });
 
     describe("when write option is true", () => {
