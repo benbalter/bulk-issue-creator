@@ -56113,7 +56113,7 @@ class Issue {
         if (!this.data.repository) {
             core.warning("Repository not found in row: ", this.data);
         }
-        return this.data.repository;
+        return this.data.repository.replace("https://github.com/", "");
     }
     get number() {
         return Number(this.data.issue_number);

@@ -59,6 +59,16 @@ describe("Issue", () => {
     expect(issue.repository).toEqual(expected);
   });
 
+  it("should strip github.com/ from the repository", () => {
+    const dataWithUrl = {
+      ...data,
+      repository: "https://github.com/owner/repo",
+    };
+    issue = new Issue(dataWithUrl, template);
+    const expected = "owner/repo";
+    expect(issue.repository).toEqual(expected);
+  });
+
   it("should return the issue number", () => {
     const expected = 1;
     expect(issue.number).toEqual(expected);
