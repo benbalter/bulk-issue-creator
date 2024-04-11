@@ -55,7 +55,7 @@
     "liquidjs": "^10.10.1",
     "markdown-table": "^3.0.3",
     "mustache": "^4.2.0",
-    "npm": "^10.4.0"
+    "npm": "^10.5.2"
   },
   "type": "commonjs",
   "bin": {
