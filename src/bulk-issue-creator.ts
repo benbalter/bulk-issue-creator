@@ -1,13 +1,14 @@
 import * as fs from "fs";
-import * as core from "@actions/core";
-import * as github from "@actions/github";
+import { getInput, warning, info } from "@actions/core";
 import { parse } from "csv-parse/sync";
 import { Issue } from "./issue.js";
 import * as yaml from "js-yaml";
-import { GitHub } from "@actions/github/lib/utils.js";
+import { GitHub, getOctokitOptions } from "@actions/github/lib/utils.js";
 import camelCase from "camelcase";
 import fetchMock from "fetch-mock";
 import { RestEndpointMethodTypes } from "@octokit/plugin-rest-endpoint-methods";
+import { type OctokitOptions } from "@octokit/core";
+import { throttling } from "@octokit/plugin-throttling";
 
 export const sandbox = fetchMock.sandbox();
 
@@ -51,7 +52,7 @@ export class BulkIssueCreator {
       const camelCaseKey = camelCase(key);
       const value =
         passedOptions[camelCaseKey] ||
-        core.getInput(key.toUpperCase()) ||
+        getInput(key.toUpperCase()) ||
         process.env[key.toUpperCase()] ||
         null;
       this.options[camelCaseKey] = this.boolOptions.includes(key)
@@ -61,13 +62,36 @@ export class BulkIssueCreator {
   }
 
   get octokit() {
-    if (this._octokit === undefined) {
-      let options = {};
-      if (process.env.NODE_ENV === "test") {
-        options = { request: { fetch: sandbox } };
-      }
-      this._octokit = github.getOctokit(this.options.githubToken, options);
+    // Return cached octokit instance if it exists
+    if (this._octokit !== undefined) {
+      return this._octokit;
     }
+
+    const throttledOctokit = GitHub.plugin(throttling);
+
+    let octokitOptions: OctokitOptions = {
+      throttle: {
+        onRateLimit: () => {
+          warning("Hit rate limit, waiting to retry.");
+          return true;
+        },
+        onSecondaryRateLimit: () => {
+          warning("Hit secondary rate limit, waiting to retry.");
+          return true;
+        },
+      },
+    };
+
+    if (process.env.NODE_ENV === "test") {
+      octokitOptions = {
+        ...octokitOptions,
+        ...{ request: { fetch: sandbox } },
+      };
+    }
+
+    this._octokit = new throttledOctokit(
+      getOctokitOptions(this.options.githubToken, octokitOptions),
+    );
 
     return this._octokit;
   }
@@ -117,7 +141,7 @@ export class BulkIssueCreator {
   }
 
   async run() {
-    core.info(`Running with options:\n${yaml.dump(this.sanitizedOptions)}`);
+    info(`Running with options:\n${yaml.dump(this.sanitizedOptions)}`);
 
     this.ensurePathExists(this.templatePath);
     this.ensurePathExists(this.csvPath);
@@ -139,7 +163,7 @@ export class BulkIssueCreator {
 
     for (const issue of this.issues) {
       if (!issue.title) {
-        core.warning("Issue title not found: ", issue.data);
+        warning("Issue title not found: ", issue.data);
         continue;
       }
 
@@ -154,14 +178,14 @@ export class BulkIssueCreator {
         });
       } catch (error) {
         if (error.status !== undefined) {
-          core.warning(
+          warning(
             `Error creating issue for ${issue.nwo}: ${error.message} (${error.status})`,
           );
           continue;
         }
         throw error;
       }
-      core.info(`Created issue ${response.data.html_url}`);
+      info(`Created issue ${response.data.html_url}`);
     }
   }
 
@@ -170,7 +194,7 @@ export class BulkIssueCreator {
 
     for (const issue of this.issues) {
       if (!issue.number) {
-        core.warning("Issue number not found: ", issue.data);
+        warning("Issue number not found: ", issue.data);
         continue;
       }
 
@@ -183,14 +207,14 @@ export class BulkIssueCreator {
         });
       } catch (error) {
         if (error.status !== undefined) {
-          core.warning(
+          warning(
             `Error creating comment for ${issue.nwo}: ${error.message} (${error.status})`,
           );
           continue;
         }
         throw error;
       }
-      core.info(`Created comment ${response.data.html_url}`);
+      info(`Created comment ${response.data.html_url}`);
     }
   }
 
@@ -214,10 +238,10 @@ export class BulkIssueCreator {
       });
     } catch (error) {
       if (error.status !== undefined && error.status === 404) {
-        core.warning(`Repository ${nwo} does not exist. Skipping...`);
+        warning(`Repository ${nwo} does not exist. Skipping...`);
         return false;
       } else if (error.status !== undefined && error.status === 401) {
-        core.warning(`Unauthorized access to repository ${nwo}. Skipping...`);
+        warning(`Unauthorized access to repository ${nwo}. Skipping...`);
         return false;
       } else {
         throw error;
@@ -232,19 +256,19 @@ export class BulkIssueCreator {
   }
 
   private async previewOutput() {
-    core.info("Running in READ ONLY mode. Pass `write` variable to write.");
+    info("Running in READ ONLY mode. Pass `write` variable to write.");
     if (this.options.githubToken === null) {
-      core.info(
+      info(
         "Note: No GitHub token provided. Skipping repository existence check.",
       );
     }
 
-    core.info(
+    info(
       `The following ${this.comment ? "comments" : "issues"} would have been created:\n`,
     );
 
     for (const issue of this.issues) {
-      core.info(yaml.dump(issue.data));
+      info(yaml.dump(issue.data));
       if (this.options.githubToken !== null) {
         await this.repoExists(issue.repository);
       }
