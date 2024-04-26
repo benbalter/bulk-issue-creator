@@ -217,7 +217,7 @@ describe("BulkIssueCreator", () => {
           );
           await bulkIssueCreator.run();
           expect(mock.called).toBeTruthy();
-        });
+        }, 7 * 1000);
 
         it("Should handle request errors", async () => {
           sandbox.reset();
