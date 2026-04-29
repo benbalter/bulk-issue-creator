@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "ES2022",
     "module": "ESNext",
     "lib": ["ESNext"],
     "moduleResolution": "node",
@@ -16,12 +16,12 @@
     "noImplicitReturns": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noImplicitAny": false,
-    "noImplicitThis": false,
-    "strictNullChecks": false,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "strictNullChecks": true,
     "allowJs": true,
     "esModuleInterop": true,
-    "types": ["node", "jest", "mocha"]
+    "types": ["node", "jest"]
   },
   "include": ["src/**/*", "__tests__/**/*"],
   "ts-node": {

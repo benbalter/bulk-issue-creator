@@ -36,7 +36,7 @@ Don't want to deal with the hassle of setting up a local Ruby environment? No wo
        inputs:
          write:
            description: "Change to 'true' to create issues, leave as 'false' to preview output"
-           default: "false"
+           default: 'false'
            type: boolean
 
    name: Bulk issue creator

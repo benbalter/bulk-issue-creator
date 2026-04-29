@@ -1,14 +1,15 @@
-import mustache from "mustache";
-import { Liquid } from "liquidjs";
-import * as core from "@actions/core";
+import mustache from 'mustache';
+import { Liquid } from 'liquidjs';
+import * as core from '@actions/core';
 
 export interface IssueData {
   title: string;
   labels?: string;
   assignees?: string;
+  assignee?: string;
   repository?: string;
   issue_number?: string;
-  [key: string]: string | string;
+  [key: string]: string | undefined;
 }
 
 export class Issue {
@@ -35,7 +36,7 @@ export class Issue {
   }
 
   get labels() {
-    return this._data.labels?.split(",").map((label) => label.trim());
+    return this._data.labels?.split(',').map((label) => label.trim());
   }
 
   get assignees() {
@@ -44,23 +45,26 @@ export class Issue {
       return [];
     }
     return assignees
-      .split(",")
-      .map((assignee) => assignee.trim().replace("@", ""));
+      .split(',')
+      .map((assignee) => assignee.trim().replace('@', ''));
   }
 
-  get repository() {
+  get repository(): string {
     if (!this._data.repository) {
-      core.warning("Repository not found in row: ", this._data);
+      core.warning(
+        'Repository not found in row: ' + JSON.stringify(this._data),
+      );
+      return '';
     }
-    return this._data.repository.replace("https://github.com/", "");
+    return this._data.repository.replace('https://github.com/', '');
   }
 
   get number() {
     return Number(this._data.issue_number);
   }
 
-  get nwo() {
-    const parts = this.repository?.split("/");
+  get nwo(): string[] {
+    const parts = this.repository.split('/');
     if (parts.length !== 2) {
       core.warning(`Invalid repository format: ${this.repository}`);
     }
