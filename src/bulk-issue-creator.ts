@@ -3,7 +3,7 @@ import { getInput, warning, info } from '@actions/core';
 import { parse } from 'csv-parse/sync';
 import { Issue } from './issue.js';
 import * as yaml from 'js-yaml';
-import { GitHub, getOctokitOptions } from '@actions/github/lib/utils.js';
+import { GitHub, getOctokitOptions } from '@actions/github/lib/utils';
 import camelCase from 'camelcase';
 import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods';
 import { type OctokitOptions } from '@octokit/core';
