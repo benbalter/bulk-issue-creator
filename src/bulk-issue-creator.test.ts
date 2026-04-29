@@ -181,6 +181,7 @@ describe('BulkIssueCreator', () => {
 
     beforeEach(() => {
       bulkIssueCreator = new BulkIssueCreator();
+      bulkIssueCreator.setFetchOverride(wrappedSandbox);
     });
 
     it('should return the contents of the template', () => {
