@@ -25,7 +25,8 @@ const wrappedSandbox = (async (
       });
     }
   }
-  return new Response(response.body, {
+  const body = await response.text();
+  return new Response(body, {
     status: response.status,
     statusText: response.statusText,
     headers,
@@ -172,6 +173,11 @@ describe('BulkIssueCreator', () => {
     beforeAll(() => {
       process.env.INPUT_TEMPLATE_PATH = './fixtures/template.md.mustache';
       process.env.INPUT_CSV_PATH = './fixtures/data.csv';
+      sandbox.reset();
+      sandbox.get('https://api.github.com/repos/owner/repo', {
+        name: 'repo',
+        owner: { login: 'owner' },
+      });
     });
 
     afterAll(() => {
@@ -181,6 +187,7 @@ describe('BulkIssueCreator', () => {
 
     beforeEach(() => {
       bulkIssueCreator = new BulkIssueCreator();
+      bulkIssueCreator.setFetchOverride(wrappedSandbox);
     });
 
     it('should return the contents of the template', () => {
