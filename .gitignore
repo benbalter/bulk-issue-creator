@@ -2,3 +2,4 @@
 config/*
 *.gem
 coverage/
+node_modules/
