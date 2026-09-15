@@ -47,7 +47,7 @@
     "@octokit/plugin-throttling": "^8.0.0",
     "camelcase": "^8.0.0",
     "commander": "^12.0.0",
-    "csv-parse": "^5.5.3",
+    "csv-parse": "^7.0.0",
     "js-yaml": "^4.1.0",
     "liquidjs": "^10.27.2",
     "mustache": "^4.2.0"
