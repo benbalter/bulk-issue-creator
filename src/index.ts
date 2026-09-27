@@ -2,6 +2,7 @@
 
 import { BulkIssueCreator } from './bulk-issue-creator.js';
 import { Command } from 'commander';
+import { setFailed } from '@actions/core';
 import fs from 'fs';
 
 const program = new Command();
@@ -14,22 +15,22 @@ program.usage('[options]');
 program
   .command('create', { isDefault: true })
   .description('Run the bulk issue creator to create issues or comments')
-  .option('-w, --write <boolean>', 'Write issues to GitHub (default: false)')
-  .option('-c, --comment <boolean>', 'Create comments instead of issues')
+  .option('-w, --write', 'Write issues to GitHub (default: false)')
+  .option('-c, --comment', 'Create comments instead of issues')
   .option('-t, --template-path <string>', 'Path to the template file')
   .option('-d, --csv-path <string>', 'Path to the CSV file')
-  .option(
-    '-l, --liquid <boolean>',
-    'Use Liquid template engine (default: false)',
-  )
+  .option('-l, --liquid', 'Use Liquid template engine (default: false)')
   .option(
     '-g, --github-token <string>',
     'GitHub Token for authenticating with GitHub',
   )
-  .action(() => {
-    const options = program.opts();
-    const bulkIssueCreator = new BulkIssueCreator(options);
-    bulkIssueCreator.run();
+  .action(async (options) => {
+    try {
+      const bulkIssueCreator = new BulkIssueCreator(options);
+      await bulkIssueCreator.run();
+    } catch (error) {
+      setFailed(error instanceof Error ? error.message : String(error));
+    }
   });
 
 program
@@ -42,9 +43,8 @@ program
     'Path at which to generate the config directory',
     './config',
   )
-  .action(() => {
-    const options = program.opts();
-    const path = options.path || './config';
+  .action((options) => {
+    const path = options.path;
     const files = ['template.md.mustache', 'data.csv'];
     console.log('Config Path: ', path);
     fs.existsSync(path) || fs.mkdirSync(path); // eslint-disable-line @typescript-eslint/no-unused-expressions
@@ -56,4 +56,4 @@ program
     }
   });
 
-program.parse();
+program.parseAsync();

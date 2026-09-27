@@ -2,4 +2,10 @@
 
 set -e
 
-npm run all
+npm run lint
+npm test
+npm run build
+npm run smoketest
+
+# Fail if the committed bundle doesn't match what src/ builds to
+git diff --exit-code dist/

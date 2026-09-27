@@ -2,6 +2,10 @@ import mustache from 'mustache';
 import { Liquid } from 'liquidjs';
 import * as core from '@actions/core';
 
+// Issues are Markdown, not HTML, so don't HTML-escape rendered values
+const mustacheConfig = { escape: (value: string) => value };
+const liquid = new Liquid();
+
 export interface IssueData {
   title: string;
   labels?: string;
@@ -10,6 +14,16 @@ export interface IssueData {
   repository?: string;
   issue_number?: string;
   [key: string]: string | undefined;
+}
+
+function splitList(list: string | undefined): string[] {
+  if (!list) {
+    return [];
+  }
+  return list
+    .split(',')
+    .map((item) => item.trim())
+    .filter((item) => item !== '');
 }
 
 export class Issue {
@@ -24,29 +38,34 @@ export class Issue {
   }
 
   get title() {
-    return mustache.render(this._data.title, this._data);
+    return mustache.render(
+      this._data.title,
+      this._data,
+      undefined,
+      mustacheConfig,
+    );
   }
 
   get body() {
     if (this.liquid === true) {
-      const engine = new Liquid();
-      return engine.parseAndRenderSync(this.template, this._data);
+      return liquid.parseAndRenderSync(this.template, this._data);
     }
-    return mustache.render(this.template, this._data);
+    return mustache.render(
+      this.template,
+      this._data,
+      undefined,
+      mustacheConfig,
+    );
   }
 
   get labels() {
-    return this._data.labels?.split(',').map((label) => label.trim());
+    return splitList(this._data.labels);
   }
 
   get assignees() {
-    const assignees = this._data.assignees || this._data.assignee;
-    if (!assignees) {
-      return [];
-    }
-    return assignees
-      .split(',')
-      .map((assignee) => assignee.trim().replace('@', ''));
+    return splitList(this._data.assignees || this._data.assignee).map(
+      (assignee) => assignee.replace('@', ''),
+    );
   }
 
   get repository(): string {
@@ -64,11 +83,12 @@ export class Issue {
   }
 
   get nwo(): string[] {
-    const parts = this.repository.split('/');
-    if (parts.length !== 2) {
-      core.warning(`Invalid repository format: ${this.repository}`);
-    }
-    return parts;
+    return this.repository.split('/');
+  }
+
+  get validRepository(): boolean {
+    const nwo = this.nwo;
+    return nwo.length === 2 && nwo.every((part) => part !== '');
   }
 
   get data() {
