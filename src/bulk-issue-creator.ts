@@ -1,7 +1,7 @@
 import * as fs from 'fs';
-import { getInput, warning, info } from '@actions/core';
+import { getInput, warning, info, setFailed } from '@actions/core';
 import { parse } from 'csv-parse/sync';
-import { Issue } from './issue.js';
+import { Issue, type IssueData } from './issue.js';
 import * as yaml from 'js-yaml';
 import { GitHub, getOctokitOptions } from '@actions/github/lib/utils.js';
 import camelCase from 'camelcase';
@@ -32,6 +32,7 @@ export class BulkIssueCreator {
   defaultTemplatePath = './config/template.md.mustache';
   defaultCsvPath = './config/data.csv';
   _octokit: InstanceType<typeof GitHub> | undefined;
+  _issues: Issue[] | undefined;
   _fetchOverride: typeof fetch | undefined;
   options: Record<string, string | boolean | null> = {
     templatePath: this.defaultTemplatePath,
@@ -122,13 +123,12 @@ export class BulkIssueCreator {
   }
 
   get issues(): Issue[] {
-    const issues: Issue[] = [];
-    const data = this.data;
-    for (const row of data) {
-      const issue = new Issue(row, this.template, this.options.liquid === true);
-      issues.push(issue);
+    if (this._issues === undefined) {
+      const template = this.template;
+      const liquid = this.options.liquid === true;
+      this._issues = this.data.map((row) => new Issue(row, template, liquid));
     }
-    return issues;
+    return this._issues;
   }
 
   private get sanitizedOptions() {
@@ -161,17 +161,25 @@ export class BulkIssueCreator {
 
   private async createIssues() {
     let response: RestEndpointMethodTypes['issues']['create']['response'];
+    let failures = 0;
 
     for (const issue of this.issues) {
       if (!issue.title) {
         warning(`Issue title not found: ${JSON.stringify(issue.data)}`);
+        failures++;
         continue;
       }
 
+      if (!this.hasValidRepository(issue)) {
+        failures++;
+        continue;
+      }
+
+      const [owner, repo] = issue.nwo;
       try {
         response = await this.octokit.rest.issues.create({
-          owner: issue.nwo[0],
-          repo: issue.nwo[1],
+          owner,
+          repo,
           title: issue.title,
           body: issue.body,
           labels: issue.labels,
@@ -181,29 +189,40 @@ export class BulkIssueCreator {
         const err = error as { status?: number; message?: string };
         if (err.status !== undefined) {
           warning(
-            `Error creating issue for ${issue.nwo}: ${err.message} (${err.status})`,
+            `Error creating issue for ${issue.repository}: ${err.message} (${err.status})`,
           );
+          failures++;
           continue;
         }
         throw error;
       }
       info(`Created issue ${response.data.html_url}`);
     }
+
+    this.reportFailures(failures, 'issues');
   }
 
   private async createComments() {
     let response: RestEndpointMethodTypes['issues']['createComment']['response'];
+    let failures = 0;
 
     for (const issue of this.issues) {
       if (!issue.number) {
         warning(`Issue number not found: ${JSON.stringify(issue.data)}`);
+        failures++;
         continue;
       }
 
+      if (!this.hasValidRepository(issue)) {
+        failures++;
+        continue;
+      }
+
+      const [owner, repo] = issue.nwo;
       try {
         response = await this.octokit.rest.issues.createComment({
-          owner: issue.nwo[0],
-          repo: issue.nwo[1],
+          owner,
+          repo,
           issue_number: issue.number,
           body: issue.body,
         });
@@ -211,19 +230,39 @@ export class BulkIssueCreator {
         const err = error as { status?: number; message?: string };
         if (err.status !== undefined) {
           warning(
-            `Error creating comment for ${issue.nwo}: ${err.message} (${err.status})`,
+            `Error creating comment for ${issue.repository}: ${err.message} (${err.status})`,
           );
+          failures++;
           continue;
         }
         throw error;
       }
       info(`Created comment ${response.data.html_url}`);
     }
+
+    this.reportFailures(failures, 'comments');
   }
 
-  private get data() {
+  private hasValidRepository(issue: Issue): boolean {
+    if (!issue.validRepository) {
+      warning(
+        `Invalid repository "${issue.repository}", expected owner/repo. Skipping...`,
+      );
+      return false;
+    }
+    return true;
+  }
+
+  // Keep going past individual failures, but fail the run so they aren't missed
+  private reportFailures(failures: number, type: string) {
+    if (failures > 0) {
+      setFailed(`${failures} of ${this.issues.length} ${type} failed`);
+    }
+  }
+
+  private get data(): IssueData[] {
     const csv = fs.readFileSync(this.csvPath, 'utf8');
-    return parse(csv, { columns: true });
+    return parse(csv, { columns: true }) as IssueData[];
   }
 
   private ensurePathExists(path: string) {
@@ -273,6 +312,9 @@ export class BulkIssueCreator {
 
     for (const issue of this.issues) {
       info(yaml.dump(issue.data));
+      if (!this.hasValidRepository(issue)) {
+        continue;
+      }
       if (this.options.githubToken !== null) {
         await this.repoExists(issue.repository);
       }

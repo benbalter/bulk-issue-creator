@@ -1,6 +1,9 @@
 import { BulkIssueCreator } from './bulk-issue-creator.js';
 import { Issue, type IssueData } from './issue.js';
 import fetchMock from 'fetch-mock';
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
 
 const sandbox = fetchMock.sandbox();
 
@@ -242,9 +245,30 @@ describe('BulkIssueCreator', () => {
           body: 'Issues disabled',
           status: 410,
         });
-        await expect(async () => {
-          bulkIssueCreator.run();
-        }).not.toThrow();
+        await expect(bulkIssueCreator.run()).resolves.toBeUndefined();
+        expect(process.exitCode).toEqual(1);
+        process.exitCode = undefined;
+      });
+
+      it('should skip rows with an invalid repository', async () => {
+        const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'bic-'));
+        const csvPath = path.join(dir, 'data.csv');
+        fs.writeFileSync(
+          csvPath,
+          'title,repository\nBad row,not-a-repo\nGood row,owner/repo\n',
+        );
+        sandbox.reset();
+        const mock = sandbox.post(
+          'https://api.github.com/repos/owner/repo/issues',
+          { html_url: 'https://github.com/owner/repo/issues/2' },
+        );
+        bulkIssueCreator = new BulkIssueCreator({ csvPath });
+        bulkIssueCreator.setFetchOverride(wrappedSandbox);
+        await bulkIssueCreator.run();
+        expect(mock.calls().length).toEqual(1);
+        expect(process.exitCode).toEqual(1);
+        process.exitCode = undefined;
+        fs.rmSync(dir, { recursive: true });
       });
 
       describe('when comment option is true', () => {
@@ -277,9 +301,9 @@ describe('BulkIssueCreator', () => {
             'https://api.github.com/repos/owner/repo/issues/1/comments',
             { body: 'Issues disabled', status: 410 },
           );
-          await expect(async () => {
-            bulkIssueCreator.run();
-          }).not.toThrow();
+          await expect(bulkIssueCreator.run()).resolves.toBeUndefined();
+          expect(process.exitCode).toEqual(1);
+          process.exitCode = undefined;
         });
       });
     });

@@ -27,15 +27,27 @@ describe('Issue', () => {
     expect(issue.body).toEqual(expected);
   });
 
+  it('should not HTML-escape rendered values', () => {
+    const raw = { ...data, name: `Ben's <app> & "stuff"` };
+    issue = new Issue(raw, template);
+    const expected = `Hello, Ben's <app> & "stuff"!`;
+    expect(issue.title).toEqual(expected);
+    expect(issue.body).toEqual(expected);
+  });
+
+  it('should return empty arrays for blank labels and assignees', () => {
+    issue = new Issue({ ...data, labels: '', assignees: ' , ' }, template);
+    expect(issue.labels).toEqual([]);
+    expect(issue.assignees).toEqual([]);
+  });
+
+  it('should flag an invalid repository', () => {
+    expect(issue.validRepository).toEqual(true);
+    issue = new Issue({ ...data, repository: 'not-a-repo' }, template);
+    expect(issue.validRepository).toEqual(false);
+  });
+
   describe('with liquid', () => {
-    beforeAll(() => {
-      process.env.USE_LIQUID = 'true';
-    });
-
-    afterAll(() => {
-      delete process.env.USE_LIQUID;
-    });
-
     it('should render the body using liquid', () => {
       const template = '{% assign hello = "Hello," %}{{ hello }} {{ name }}!';
       issue = new Issue(data, template, true);

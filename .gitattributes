@@ -1,0 +1,2 @@
+# Store the ncc bundle byte-for-byte so check-dist compares like with like
+dist/** -text
