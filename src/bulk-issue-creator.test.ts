@@ -5,36 +5,10 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 
-const sandbox = fetchMock.sandbox();
-
-// Wrap fetch-mock sandbox to return proper Headers objects
-// that implement Symbol.iterator (required by @octokit/request)
-const wrappedSandbox = (async (
-  input: string | Request | URL,
-  init?: RequestInit,
-) => {
-  const response = await sandbox(
-    String(input),
-    init as RequestInit | undefined,
-  );
-  const headers = new Headers();
-  if (response.headers) {
-    const rawHeaders = response.headers as unknown as {
-      raw?: () => Record<string, string[]>;
-    };
-    if (rawHeaders.raw) {
-      Object.entries(rawHeaders.raw()).forEach(([key, values]) => {
-        values.forEach((v) => headers.append(key, v));
-      });
-    }
-  }
-  const body = await response.text();
-  return new Response(body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers,
-  });
-}) as typeof fetch;
+const sandbox = fetchMock.createInstance();
+const ISSUES_URL = 'https://api.github.com/repos/owner/repo/issues';
+const COMMENTS_URL =
+  'https://api.github.com/repos/owner/repo/issues/1/comments';
 
 describe('BulkIssueCreator', () => {
   let bulkIssueCreator: BulkIssueCreator;
@@ -52,7 +26,7 @@ describe('BulkIssueCreator', () => {
 
   beforeEach(() => {
     bulkIssueCreator = new BulkIssueCreator();
-    bulkIssueCreator.setFetchOverride(wrappedSandbox);
+    bulkIssueCreator.setFetchOverride(sandbox.fetchHandler);
   });
 
   describe('constructor', () => {
@@ -138,7 +112,7 @@ describe('BulkIssueCreator', () => {
 
   describe('repoExists', () => {
     beforeAll(() => {
-      sandbox.reset();
+      sandbox.removeRoutes().clearHistory();
     });
 
     it('should return true if the repository exists', async () => {
@@ -176,7 +150,7 @@ describe('BulkIssueCreator', () => {
     beforeAll(() => {
       process.env.INPUT_TEMPLATE_PATH = './fixtures/template.md.mustache';
       process.env.INPUT_CSV_PATH = './fixtures/data.csv';
-      sandbox.reset();
+      sandbox.removeRoutes().clearHistory();
       sandbox.get('https://api.github.com/repos/owner/repo', {
         name: 'repo',
         owner: { login: 'owner' },
@@ -190,7 +164,7 @@ describe('BulkIssueCreator', () => {
 
     beforeEach(() => {
       bulkIssueCreator = new BulkIssueCreator();
-      bulkIssueCreator.setFetchOverride(wrappedSandbox);
+      bulkIssueCreator.setFetchOverride(sandbox.fetchHandler);
     });
 
     it('should return the contents of the template', () => {
@@ -236,11 +210,13 @@ describe('BulkIssueCreator', () => {
           },
         );
         await bulkIssueCreator.run();
-        expect(mock.called).toBeTruthy();
+        expect(mock.callHistory.called(ISSUES_URL, { method: 'POST' })).toBe(
+          true,
+        );
       });
 
       it('Should handle request errors', async () => {
-        sandbox.reset();
+        sandbox.removeRoutes().clearHistory();
         sandbox.post('https://api.github.com/repos/owner/repo/issues', {
           body: 'Issues disabled',
           status: 410,
@@ -257,15 +233,17 @@ describe('BulkIssueCreator', () => {
           csvPath,
           'title,repository\nBad row,not-a-repo\nGood row,owner/repo\n',
         );
-        sandbox.reset();
+        sandbox.removeRoutes().clearHistory();
         const mock = sandbox.post(
           'https://api.github.com/repos/owner/repo/issues',
           { html_url: 'https://github.com/owner/repo/issues/2' },
         );
         bulkIssueCreator = new BulkIssueCreator({ csvPath });
-        bulkIssueCreator.setFetchOverride(wrappedSandbox);
+        bulkIssueCreator.setFetchOverride(sandbox.fetchHandler);
         await bulkIssueCreator.run();
-        expect(mock.calls().length).toEqual(1);
+        expect(
+          mock.callHistory.calls(ISSUES_URL, { method: 'POST' }),
+        ).toHaveLength(1);
         expect(process.exitCode).toEqual(1);
         process.exitCode = undefined;
         fs.rmSync(dir, { recursive: true });
@@ -290,13 +268,15 @@ describe('BulkIssueCreator', () => {
               },
             );
             await bulkIssueCreator.run();
-            expect(mock.called).toBeTruthy();
+            expect(
+              mock.callHistory.called(COMMENTS_URL, { method: 'POST' }),
+            ).toBe(true);
           },
           7 * 1000,
         );
 
         it('Should handle request errors', async () => {
-          sandbox.reset();
+          sandbox.removeRoutes().clearHistory();
           sandbox.post(
             'https://api.github.com/repos/owner/repo/issues/1/comments',
             { body: 'Issues disabled', status: 410 },
