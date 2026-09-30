@@ -21,6 +21,7 @@
     "strictNullChecks": true,
     "allowJs": true,
     "esModuleInterop": true,
+    "skipLibCheck": true,
     "types": ["node", "jest"]
   },
   "include": ["src/**/*", "__tests__/**/*"],
