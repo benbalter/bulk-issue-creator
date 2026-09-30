@@ -20,7 +20,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
+  rebuild-dist:
     if: >-
       contains(fromJSON('["renovate[bot]", "dependabot[bot]"]'), github.event.pull_request.user.login) &&
       github.event.pull_request.head.repo.full_name == github.repository
@@ -62,9 +62,9 @@ jobs:
           retention-days: 1
           if-no-files-found: error
 
-  commit:
-    needs: build
-    if: needs.build.outputs.changed == 'true'
+  commit-dist:
+    needs: rebuild-dist
+    if: needs.rebuild-dist.outputs.changed == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write # push the rebuilt dist/
