@@ -49,7 +49,7 @@
     "@octokit/plugin-rest-endpoint-methods": "17.0.0",
     "@octokit/plugin-throttling": "11.0.5",
     "camelcase": "^9.0.0",
-    "commander": "^12.0.0",
+    "commander": "^15.0.0",
     "csv-parse": "^7.0.0",
     "js-yaml": "^4.1.0",
     "liquidjs": "^10.27.2",
