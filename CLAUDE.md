@@ -4,13 +4,13 @@ Bulk issue (or comment) creator: a TypeScript CLI that also ships as a GitHub Ac
 
 ## Commands
 
-- `script/cibuild` is what CI runs: lint (eslint + `prettier --check .`, which covers Markdown), tests, build, a CLI smoke test, then `git diff --exit-code dist/`. Run it before committing.
+- `script/cibuild` is what CI runs: lint (eslint + `prettier --check .`, which covers Markdown), tests, build, a CLI smoke test, then fails if `dist/`, `README.md`, or `action.yml` differ from what the code generates. Run it before committing.
 - `npm run all` does the same but rewrites files (`eslint --fix`, `prettier --write`) first.
 
 ## Generated files
 
 - `dist/` is the ncc bundle the Action runs. Rebuild with `npm run build` and commit it with any change to `src/` or dependencies, or CI fails. For Renovate and Dependabot PRs, [`rebuild-dist.yml`](.github/workflows/rebuild-dist.yml) commits it for you.
-- The README options table (below `<!-- Options here -->`) and the `inputs` in `action.yml` are generated from the CLI's `--help` output by [`script/update-options`](script/update-options). Change the option in `src/`, rebuild, then regenerate both rather than editing one by hand. On main the generator is broken (it needs `markdown-table` and drops bare flags like `--write`); [#100](https://github.com/benbalter/bulk-issue-creator/pull/100) fixes it, so until that merges, update both files by hand and keep them matching.
+- The README options table (below `<!-- Options here -->`) and the `inputs` in `action.yml` are generated from the CLI's `--help` output by [`script/update-options`](script/update-options). Change the option in `src/`, run `npm run build && script/update-options`, and commit both files. Don't edit either by hand; `script/cibuild` fails when they drift.
 
 ## Releasing
 
