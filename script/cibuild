@@ -9,3 +9,8 @@ npm run smoketest
 
 # Fail if the committed bundle doesn't match what src/ builds to
 git diff --exit-code dist/
+
+# README.md's options table and action.yml's inputs are generated from the
+# CLI's help output. Fail if either no longer matches what the CLI declares.
+script/update-options >/dev/null
+git diff --exit-code README.md action.yml

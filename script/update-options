@@ -1,12 +1,21 @@
-#!/usr/bin/env ts-node --esm
+#!/usr/bin/env node
+// Regenerates the options table in README.md and the inputs in action.yml
+// from the CLI's help output. CI runs this and fails if either file changes,
+// so edit the options in src/index.ts and rerun this rather than editing the
+// copies by hand.
 const { execSync } = require('child_process');
 const fs = require('fs');
 const yaml = require('js-yaml');
 
 async function run() {
   const output = execSync('node dist/index.js help create').toString();
-  const regex = /--(.*?) <(.*?)>+(.*?)\n/g;
-  const matches = [...output.matchAll(regex)];
+  // Matches "--name <type>  Description" and bare boolean flags like
+  // "--write  Description". Flags take no value on the command line, but
+  // Actions inputs and env vars still pass them as a boolean string.
+  const regex = /--([\w-]+)(?: <(.*?)>)? {2,}(.*?)\n/g;
+  const matches = [...output.matchAll(regex)].filter(
+    (match) => match[1] !== 'help',
+  );
   const rows = [
     [
       'Command line',
@@ -17,17 +26,12 @@ async function run() {
   ];
   const inputs = {};
   matches.forEach((match) => {
-    const command = match[1];
-    const arg = `<${match[2]}>`;
+    const command = match[2] ? `--${match[1]} <${match[2]}>` : `--${match[1]}`;
+    const arg = `<${match[2] || 'boolean'}>`;
     const description = match[3].trim();
     const actions = match[1].replace(/-/g, '_');
     const env = match[1].replace(/-/g, '_').toUpperCase();
-    rows.push([
-      `--${command} ${arg}`,
-      `${actions}: ${arg}`,
-      `${env}: ${arg}`,
-      description,
-    ]);
+    rows.push([command, `${actions}: ${arg}`, `${env}: ${arg}`, description]);
     inputs[actions] = { required: false, description: description };
   });
   const { markdownTable } = await import('markdown-table');
@@ -37,7 +41,7 @@ async function run() {
   const delim = '<!-- Options here -->';
   const newReadme = readme.replace(
     /<!-- Options here -->.*?####/s,
-    `${delim}\n${table}\n\n####`,
+    `${delim}\n\n${table}\n\n####`,
   );
   fs.writeFileSync('./README.md', newReadme);
 
