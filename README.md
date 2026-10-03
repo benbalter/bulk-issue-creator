@@ -94,11 +94,11 @@ Options can be passed as command-line arguments when running locally or via the 
 
 | Command line             | GitHub Actions `with:`  | GitHub Actions `env:`   | Description                                 |
 | ------------------------ | ----------------------- | ----------------------- | ------------------------------------------- |
-| --write <boolean>        | write: <boolean>        | WRITE: <boolean>        | Write issues to GitHub (default: false)     |
-| --comment <boolean>      | comment: <boolean>      | COMMENT: <boolean>      | Create comments instead of issues           |
+| --write                  | write: <boolean>        | WRITE: <boolean>        | Write issues to GitHub (default: false)     |
+| --comment                | comment: <boolean>      | COMMENT: <boolean>      | Create comments instead of issues           |
 | --template-path <string> | template_path: <string> | TEMPLATE_PATH: <string> | Path to the template file                   |
 | --csv-path <string>      | csv_path: <string>      | CSV_PATH: <string>      | Path to the CSV file                        |
-| --liquid <boolean>       | liquid: <boolean>       | LIQUID: <boolean>       | Use Liquid template engine (default: false) |
+| --liquid                 | liquid: <boolean>       | LIQUID: <boolean>       | Use Liquid template engine (default: false) |
 | --github-token <string>  | github_token: <string>  | GITHUB_TOKEN: <string>  | GitHub Token for authenticating with GitHub |
 
 #### Special fields
