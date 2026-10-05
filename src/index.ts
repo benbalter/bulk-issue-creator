@@ -47,7 +47,7 @@ program
     const path = options.path;
     const files = ['template.md.mustache', 'data.csv'];
     console.log('Config Path: ', path);
-    fs.existsSync(path) || fs.mkdirSync(path); // eslint-disable-line @typescript-eslint/no-unused-expressions
+    fs.existsSync(path) || fs.mkdirSync(path, { recursive: true }); // eslint-disable-line @typescript-eslint/no-unused-expressions
     for (const file of files) {
       if (!fs.existsSync(`${path}/${file}`)) {
         fs.writeFileSync(`${path}/${file}`, '');
