@@ -40254,6 +40254,7 @@ function file_command_prepareKeyValueMessage(key, value) {
 //# sourceMappingURL=file-command.js.map
 // EXTERNAL MODULE: external "path"
 var external_path_ = __nccwpck_require__(6928);
+var external_path_default = /*#__PURE__*/__nccwpck_require__.n(external_path_);
 // EXTERNAL MODULE: external "http"
 var external_http_ = __nccwpck_require__(8611);
 // EXTERNAL MODULE: external "https"
@@ -54734,6 +54735,22 @@ class BulkIssueCreator {
     }
 }
 
+;// CONCATENATED MODULE: ./src/init.ts
+
+
+function initializeConfig(configPath) {
+    const files = ['template.md.mustache', 'data.csv'];
+    console.log('Config Path: ', configPath);
+    external_fs_default().mkdirSync(configPath, { recursive: true });
+    for (const file of files) {
+        const filePath = external_path_default().join(configPath, file);
+        if (!external_fs_default().existsSync(filePath)) {
+            external_fs_default().writeFileSync(filePath, '');
+            console.log(`Created ${filePath}`);
+        }
+    }
+}
+
 // EXTERNAL MODULE: ./node_modules/commander/index.js
 var commander = __nccwpck_require__(8909);
 ;// CONCATENATED MODULE: ./node_modules/commander/esm.mjs
@@ -54785,18 +54802,7 @@ src_program
     .command('init')
     .description('Initialize the Bulk Issue Creator config folder with template and data file')
     .option('-p, --path <string>', 'Path at which to generate the config directory', './config')
-    .action((options) => {
-    const path = options.path;
-    const files = ['template.md.mustache', 'data.csv'];
-    console.log('Config Path: ', path);
-    external_fs_default().existsSync(path) || external_fs_default().mkdirSync(path, { recursive: true }); // eslint-disable-line @typescript-eslint/no-unused-expressions
-    for (const file of files) {
-        if (!external_fs_default().existsSync(`${path}/${file}`)) {
-            external_fs_default().writeFileSync(`${path}/${file}`, '');
-            console.log(`Created ${path}/${file}`);
-        }
-    }
-});
+    .action((options) => initializeConfig(options.path));
 src_program.parseAsync();
 
 })();

@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
 import { BulkIssueCreator } from './bulk-issue-creator.js';
+import { initializeConfig } from './init.js';
 import { Command } from 'commander';
 import { setFailed } from '@actions/core';
-import fs from 'fs';
 
 const program = new Command();
 program.name('bulk-issue-creator');
@@ -43,17 +43,6 @@ program
     'Path at which to generate the config directory',
     './config',
   )
-  .action((options) => {
-    const path = options.path;
-    const files = ['template.md.mustache', 'data.csv'];
-    console.log('Config Path: ', path);
-    fs.existsSync(path) || fs.mkdirSync(path, { recursive: true }); // eslint-disable-line @typescript-eslint/no-unused-expressions
-    for (const file of files) {
-      if (!fs.existsSync(`${path}/${file}`)) {
-        fs.writeFileSync(`${path}/${file}`, '');
-        console.log(`Created ${path}/${file}`);
-      }
-    }
-  });
+  .action((options) => initializeConfig(options.path));
 
 program.parseAsync();
