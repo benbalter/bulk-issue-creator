@@ -15,15 +15,17 @@ Bulk opens batches of issues (or posts comments) across GitHub repositories base
 ## Running locally
 
 1. `git clone https://github.com/benbalter/bulk-issue-creator`
-2. `bulk-issue-creator init` to create a `./config/data.csv` and `./config/template.md.mustache` files
-3. Follow [the "Setup" instructions below](#setup) to customize the data file and template.
-4. Export the personal access token you create as the `GITHUB_TOKEN` environmental variable, or add it to a `.env` file in the root of the repository in the form of `GITHUB_TOKEN=XXX`.
-5. Run `bulk-issue-creator` to preview the output
-6. Run `bulk-issue-creator --write` to create the issues.
+2. `cd bulk-issue-creator`
+3. Run `npm ci` to install dependencies.
+4. Run `script/run init` to create `./config/data.csv` and `./config/template.md.mustache`.
+5. Follow [the "Setup" instructions below](#setup) to customize the data file and template.
+6. Export the personal access token you create as the `GITHUB_TOKEN` environment variable.
+7. Run `script/run` to preview the output.
+8. Run `script/run --write` to create the issues.
 
 ## Running via GitHub actions
 
-Don't want to deal with the hassle of setting up a local Ruby environment? No worries. With a little copy/paste can use GitHub actions to open issues _from the cloud!_:
+To run the tool with GitHub Actions instead of locally:
 
 1. Create a new repository (public or private)
 2. Follow [the "Setup" instructions below](#setup) to add the CSV and template to the repository.
