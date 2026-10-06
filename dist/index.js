@@ -54789,7 +54789,7 @@ src_program
     const path = options.path;
     const files = ['template.md.mustache', 'data.csv'];
     console.log('Config Path: ', path);
-    external_fs_default().existsSync(path) || external_fs_default().mkdirSync(path); // eslint-disable-line @typescript-eslint/no-unused-expressions
+    external_fs_default().existsSync(path) || external_fs_default().mkdirSync(path, { recursive: true }); // eslint-disable-line @typescript-eslint/no-unused-expressions
     for (const file of files) {
         if (!external_fs_default().existsSync(`${path}/${file}`)) {
             external_fs_default().writeFileSync(`${path}/${file}`, '');
