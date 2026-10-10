@@ -2,7 +2,7 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 4844:
+/***/ 9659:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -56,7 +56,7 @@ exports.getProxyUrl = getProxyUrl;
 exports.isHttps = isHttps;
 const http = __importStar(__nccwpck_require__(8611));
 const https = __importStar(__nccwpck_require__(5692));
-const pm = __importStar(__nccwpck_require__(4988));
+const pm = __importStar(__nccwpck_require__(3335));
 const tunnel = __importStar(__nccwpck_require__(770));
 const undici_1 = __nccwpck_require__(6752);
 var HttpCodes;
@@ -746,7 +746,7 @@ const lowercaseKeys = (obj) => Object.keys(obj).reduce((c, k) => ((c[k.toLowerCa
 
 /***/ }),
 
-/***/ 4988:
+/***/ 3335:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -2383,7 +2383,7 @@ class DecodedURL extends URL {
 "use strict";
 var __webpack_unused_export__;
 /*
- * liquidjs@10.29.0, https://github.com/harttle/liquidjs
+ * liquidjs@10.30.0, https://github.com/harttle/liquidjs
  * (c) 2016-2026 harttle
  * Released under the MIT License.
  */
@@ -2779,8 +2779,8 @@ function assertEmpty(predicate, message = `unexpected ${JSON.stringify(predicate
 }
 
 class NullDrop extends Drop {
-    equals(value) {
-        return isNil(toValue(value));
+    *equals(value) {
+        return isNil(yield toValue(value));
     }
     gt() {
         return false;
@@ -2800,10 +2800,10 @@ class NullDrop extends Drop {
 }
 
 class EmptyDrop extends Drop {
-    equals(value) {
+    *equals(value) {
         if (value instanceof EmptyDrop)
             return false;
-        value = toValue(value);
+        value = yield toValue(value);
         if (isString(value) || isArray(value))
             return value.length === 0;
         if (isObject(value))
@@ -2831,14 +2831,14 @@ class EmptyDrop extends Drop {
 }
 
 class BlankDrop extends EmptyDrop {
-    equals(value) {
+    *equals(value) {
         if (value === false)
             return true;
-        if (isNil(toValue(value)))
+        if (isNil(yield toValue(value)))
             return true;
         if (isString(value))
             return /^\s*$/.test(value);
-        return super.equals(value);
+        return yield super.equals(value);
     }
     static is(value) {
         return value instanceof BlankDrop;
@@ -3057,12 +3057,9 @@ function getDayOfYear(d) {
     return num + d.getDate();
 }
 function getWeekOfYear(d, startDay) {
-    // Skip to startDay of this week
-    const now = getDayOfYear(d) + (startDay - d.getDay());
-    // Find the first startDay of the year
-    const jan1 = new Date(d.getFullYear(), 0, 1);
-    const then = (7 - jan1.getDay() + startDay);
-    return String(Math.floor((now - then) / 7) + 1);
+    // Days before the first startDay of the year belong to week 0
+    const daysSinceStartDay = (d.getDay() - startDay + 7) % 7;
+    return String(Math.floor((getDayOfYear(d) - 1 - daysSinceStartDay + 7) / 7));
 }
 function isLeapYear(d) {
     const year = d.getFullYear();
@@ -3080,10 +3077,11 @@ function ordinal(d) {
     }
 }
 function century(d) {
-    return parseInt(d.getFullYear().toString().substring(0, 2), 10);
+    return Math.floor(d.getFullYear() / 100);
 }
 // default to 0
 const padWidths = {
+    C: 2,
     d: 2,
     e: 2,
     H: 2,
@@ -3096,7 +3094,8 @@ const padWidths = {
     M: 2,
     S: 2,
     U: 2,
-    W: 2
+    W: 2,
+    y: 2
 };
 const padSpaceChars = new Set('aAbBceklpP');
 function getTimezoneOffset(d, opts) {
@@ -3142,7 +3141,7 @@ const formatCodes = {
     W: (d) => getWeekOfYear(d, 1),
     x: (d) => d.toLocaleDateString(),
     X: (d) => d.toLocaleTimeString(),
-    y: (d) => d.getFullYear().toString().slice(2, 4),
+    y: (d) => (d.getFullYear() % 100 + 100) % 100,
     Y: (d) => d.getFullYear(),
     z: getTimezoneOffset,
     Z: (d, opts) => d.getTimeZoneName() || getTimezoneOffset(d, opts),
@@ -3731,6 +3730,11 @@ class Expression {
         return !!this.postfix.length;
     }
 }
+/**
+ * Evaluate `token`, preserving Drops.
+ * Operators use this so `Comparable` drops (`empty`, `nil`, `blank`) and custom drops
+ * are compared as drops rather than as their `valueOf()` result.
+ */
 function* evalToken(token, ctx, lenient = false) {
     if (!token)
         return;
@@ -3755,10 +3759,17 @@ function* evalFilteredValueToken(token, ctx, lenient) {
     }
     return val;
 }
+/**
+ * Evaluate `token` to the value filters and tags consume.
+ * Awaits a promise returned by `Drop.valueOf()`.
+ */
+function* evalTokenValue(token, ctx, lenient = false) {
+    return yield toValue(yield evalToken(token, ctx, lenient));
+}
 function* evalPropertyAccessToken(token, ctx, lenient) {
     const props = [];
     for (const prop of token.props) {
-        props.push((yield evalToken(prop, ctx, false)));
+        props.push((yield evalTokenValue(prop, ctx, false)));
     }
     try {
         if (token.variable) {
@@ -3779,8 +3790,8 @@ function evalQuotedToken(token) {
     return token.content;
 }
 function* evalRangeToken(token, ctx) {
-    const low = yield evalToken(token.lhs, ctx);
-    const high = yield evalToken(token.rhs, ctx);
+    const low = (yield evalTokenValue(token.lhs, ctx));
+    const high = (yield evalTokenValue(token.rhs, ctx));
     ctx.memoryLimit.use(high - low + 1);
     return range(+low, +high + 1);
 }
@@ -3815,67 +3826,75 @@ function isFalsy(val, ctx) {
 }
 
 const defaultOperators = {
-    '==': equals,
-    '!=': (l, r) => !equals(l, r),
-    '>': (l, r) => {
+    '==': function* (l, r) { return yield equals(l, r); },
+    '!=': function* (l, r) { return !(yield equals(l, r)); },
+    '>': function* (l, r) {
         if (isComparable(l))
-            return l.gt(r);
+            return yield l.gt(r);
         if (isComparable(r))
-            return r.lt(l);
-        return toValue(l) > toValue(r);
+            return yield r.lt(l);
+        return (yield toValue(l)) > (yield toValue(r));
     },
-    '<': (l, r) => {
+    '<': function* (l, r) {
         if (isComparable(l))
-            return l.lt(r);
+            return yield l.lt(r);
         if (isComparable(r))
-            return r.gt(l);
-        return toValue(l) < toValue(r);
+            return yield r.gt(l);
+        return (yield toValue(l)) < (yield toValue(r));
     },
-    '>=': (l, r) => {
+    '>=': function* (l, r) {
         if (isComparable(l))
-            return l.geq(r);
+            return yield l.geq(r);
         if (isComparable(r))
-            return r.leq(l);
-        return toValue(l) >= toValue(r);
+            return yield r.leq(l);
+        return (yield toValue(l)) >= (yield toValue(r));
     },
-    '<=': (l, r) => {
+    '<=': function* (l, r) {
         if (isComparable(l))
-            return l.leq(r);
+            return yield l.leq(r);
         if (isComparable(r))
-            return r.geq(l);
-        return toValue(l) <= toValue(r);
+            return yield r.geq(l);
+        return (yield toValue(l)) <= (yield toValue(r));
     },
-    'contains': (l, r) => {
-        l = toValue(l);
+    'contains': function* (l, r) {
+        l = yield toValue(l);
         if (isArray(l))
-            return l.some((i) => equals(i, r));
+            return yield arrayIncludes(l, r);
         if (isFunction(l?.indexOf))
-            return l.indexOf(toValue(r)) > -1;
+            return l.indexOf(yield toValue(r)) > -1;
         return false;
     },
-    'not': (v, ctx) => isFalsy(toValue(v), ctx),
-    'and': (l, r, ctx) => isTruthy(toValue(l), ctx) && isTruthy(toValue(r), ctx),
-    'or': (l, r, ctx) => isTruthy(toValue(l), ctx) || isTruthy(toValue(r), ctx)
+    'not': function* (v, ctx) { return isFalsy(yield toValue(v), ctx); },
+    'and': function* (l, r, ctx) { return isTruthy(yield toValue(l), ctx) && isTruthy(yield toValue(r), ctx); },
+    'or': function* (l, r, ctx) { return isTruthy(yield toValue(l), ctx) || isTruthy(yield toValue(r), ctx); }
 };
-function equals(lhs, rhs) {
+function* equals(lhs, rhs) {
     if (isComparable(lhs))
-        return lhs.equals(rhs);
+        return yield lhs.equals(rhs);
     if (isComparable(rhs))
-        return rhs.equals(lhs);
-    lhs = toValue(lhs);
-    rhs = toValue(rhs);
+        return yield rhs.equals(lhs);
+    lhs = yield toValue(lhs);
+    rhs = yield toValue(rhs);
     if (isArray(lhs)) {
-        return isArray(rhs) && arrayEquals(lhs, rhs);
+        return isArray(rhs) && (yield arrayEquals(lhs, rhs));
     }
     return lhs === rhs;
 }
-function arrayEquals(lhs, rhs) {
+function* arrayEquals(lhs, rhs) {
     if (lhs.length !== rhs.length)
         return false;
-    return !lhs.some((value, i) => !equals(value, rhs[i]));
+    for (let i = 0; i < lhs.length; i++) {
+        if (!(yield equals(lhs[i], rhs[i])))
+            return false;
+    }
+    return true;
 }
-function arrayIncludes(arr, item) {
-    return arr.some(value => equals(value, item));
+function* arrayIncludes(arr, item) {
+    for (const value of arr) {
+        if (yield equals(value, item))
+            return true;
+    }
+    return false;
 }
 
 class Node {
@@ -4919,7 +4938,7 @@ class Output extends TemplateImpl {
         }
     }
     *render(ctx, emitter) {
-        const val = yield this.value.value(ctx, false);
+        const val = yield toValue(yield this.value.value(ctx, false));
         emitter.write(val);
     }
     *arguments() {
@@ -5732,7 +5751,7 @@ var mathFilters = /*#__PURE__*/Object.freeze({
   round: round
 });
 
-const url_decode = (x) => decodeURIComponent(stringify(x)).replace(/\+/g, ' ');
+const url_decode = (x) => decodeURIComponent(stringify(x).replace(/\+/g, ' '));
 const url_encode = (x) => encodeURIComponent(stringify(x)).replace(/%20/g, '+');
 const cgi_escape = (x) => encodeURIComponent(stringify(x))
     .replace(/%20/g, '+')
@@ -5893,27 +5912,29 @@ function slice(v, begin, length = 1) {
         ? Array.prototype.slice.call(v, begin, begin + length)
         : String.prototype.slice.call(v, begin, begin + length);
 }
-function expectedMatcher(expected) {
+function* matches(value, expected) {
     if (this.context.opts.jekyllWhere) {
-        return (v) => EmptyDrop.is(expected) ? equals(v, expected) : (isArray(v) ? arrayIncludes(v, expected) : equals(v, expected));
+        if (EmptyDrop.is(expected))
+            return yield equals(value, expected);
+        if (isArray(value))
+            return yield arrayIncludes(value, expected);
+        return yield equals(value, expected);
     }
-    else if (expected === undefined) {
-        return (v) => isTruthy(v, this.context);
-    }
-    else {
-        return (v) => equals(v, expected);
-    }
+    if (expected === undefined)
+        return isTruthy(value, this.context);
+    return yield equals(value, expected);
 }
 function* filter(include, arr, property, expected) {
-    const values = [];
     arr = toArray(arr);
     this.context.memoryLimit.use(arr.length);
     const token = new Tokenizer(stringify(property)).readScopeValue();
+    const result = [];
     for (const item of arr) {
-        values.push(yield evalToken(token, this.context.spawn(item)));
+        const value = yield evalToken(token, this.context.spawn(item));
+        if ((yield matches.call(this, value, expected)) === include)
+            result.push(item);
     }
-    const matcher = expectedMatcher.call(this, expected);
-    return Array.prototype.filter.call(arr, (_, i) => matcher(values[i]) === include);
+    return result;
 }
 function* filter_exp(include, arr, itemName, exp) {
     const filtered = [];
@@ -5972,10 +5993,9 @@ function* group_by_exp(arr, itemName, exp) {
 function* search(arr, property, expected) {
     const token = new Tokenizer(stringify(property)).readScopeValue();
     const array = toArray(arr);
-    const matcher = expectedMatcher.call(this, expected);
     for (let index = 0; index < array.length; index++) {
         const value = yield evalToken(token, this.context.spawn(array[index]));
-        if (matcher(value))
+        if (yield matches.call(this, value, expected))
             return [index, array[index]];
     }
 }
@@ -6164,17 +6184,32 @@ function prepend(v, arg) {
     this.context.memoryLimit.use(lhs.length + rhs.length);
     return rhs + lhs;
 }
+function getTrimStart(str, chars) {
+    let start = 0;
+    for (const char of str) {
+        if (!chars.has(char))
+            break;
+        start += char.length;
+    }
+    return start;
+}
+function getTrimEnd(str, chars, start = 0) {
+    let end = str.length;
+    while (end > start) {
+        const size = end - start >= 2 && str.codePointAt(end - 2) > 0xFFFF ? 2 : 1;
+        if (!chars.has(str.slice(end - size, end)))
+            break;
+        end -= size;
+    }
+    return end;
+}
 function lstrip(v, chars) {
     const str = stringify(v);
     this.context.memoryLimit.use(str.length);
     if (chars) {
         chars = stringify(chars);
         this.context.memoryLimit.use(chars.length);
-        for (let i = 0, set = new Set(chars); i < str.length; i++) {
-            if (!set.has(str[i]))
-                return str.slice(i);
-        }
-        return '';
+        return str.slice(getTrimStart(str, new Set(chars)));
     }
     return str.trimStart();
 }
@@ -6215,11 +6250,7 @@ function rstrip(str, chars) {
     if (chars) {
         chars = stringify(chars);
         this.context.memoryLimit.use(chars.length);
-        for (let i = str.length - 1, set = new Set(chars); i >= 0; i--) {
-            if (!set.has(str[i]))
-                return str.slice(0, i + 1);
-        }
-        return '';
+        return str.slice(0, getTrimEnd(str, new Set(chars)));
     }
     return str.trimEnd();
 }
@@ -6239,13 +6270,8 @@ function strip(v, chars) {
     if (chars) {
         const set = new Set(stringify(chars));
         this.context.memoryLimit.use(set.size);
-        let i = 0;
-        let j = str.length - 1;
-        while (set.has(str[i]))
-            i++;
-        while (j >= i && set.has(str[j]))
-            j--;
-        return str.slice(i, j + 1);
+        const start = getTrimStart(str, set);
+        return str.slice(start, getTrimEnd(str, set, start));
     }
     return str.trim();
 }
@@ -6302,7 +6328,7 @@ function truncatewords(v, words = 15, o = '...') {
     const str = stringify(v);
     o = stringify(o);
     this.context.memoryLimit.use(str.length + o.length);
-    const arr = str.split(/\s+/);
+    const arr = str.trimStart().split(/\s+/);
     if (words <= 0)
         words = 1;
     let ret = arr.slice(0, words).join(' ');
@@ -6648,12 +6674,12 @@ class CaseTag extends Tag {
     }
     *render(ctx, emitter) {
         const r = this.liquid.renderer;
-        const target = toValue(yield this.value.value(ctx, ctx.opts.lenientIf));
+        const target = yield toValue(yield this.value.value(ctx, ctx.opts.lenientIf));
         let branchHit = false;
         for (const branch of this.branches) {
             for (const valueToken of branch.values) {
                 const value = yield evalToken(valueToken, ctx, ctx.opts.lenientIf);
-                if (equals(target, value)) {
+                if (yield equals(target, value)) {
                     yield r.renderTemplates(branch.templates, ctx, emitter);
                     branchHit = true;
                     break;
@@ -7008,7 +7034,7 @@ class IfTag extends Tag {
     *render(ctx, emitter) {
         const r = this.liquid.renderer;
         for (const { value, templates } of this.branches) {
-            const v = yield value.value(ctx, ctx.opts.lenientIf);
+            const v = yield toValue(yield value.value(ctx, ctx.opts.lenientIf));
             if (isTruthy(v, ctx)) {
                 yield r.renderTemplates(templates, ctx, emitter);
                 return;
@@ -7300,7 +7326,7 @@ class UnlessTag extends Tag {
     *render(ctx, emitter) {
         const r = this.liquid.renderer;
         for (const { value, test, templates } of this.branches) {
-            const v = yield value.value(ctx, ctx.opts.lenientIf);
+            const v = yield toValue(yield value.value(ctx, ctx.opts.lenientIf));
             if (test(v, ctx)) {
                 yield r.renderTemplates(templates, ctx, emitter);
                 return;
@@ -7343,7 +7369,7 @@ class EchoTag extends Tag {
     *render(ctx, emitter) {
         if (!this.value)
             return;
-        const val = yield this.value.value(ctx, false);
+        const val = yield toValue(yield this.value.value(ctx, false));
         emitter.write(val);
     }
     *arguments() {
@@ -7581,7 +7607,7 @@ class Liquid {
 }
 
 /* istanbul ignore file */
-const version = '10.29.0';
+const version = '10.30.0';
 
 __webpack_unused_export__ = AssertionError;
 __webpack_unused_export__ = AssignTag;
@@ -7634,6 +7660,7 @@ __webpack_unused_export__ = defaultOperators;
 __webpack_unused_export__ = defaultOptions;
 __webpack_unused_export__ = evalQuotedToken;
 __webpack_unused_export__ = evalToken;
+__webpack_unused_export__ = evalTokenValue;
 __webpack_unused_export__ = filters;
 __webpack_unused_export__ = isFalsy;
 __webpack_unused_export__ = isTruthy;
@@ -40259,7 +40286,7 @@ var external_path_default = /*#__PURE__*/__nccwpck_require__.n(external_path_);
 var external_http_ = __nccwpck_require__(8611);
 // EXTERNAL MODULE: external "https"
 var external_https_ = __nccwpck_require__(5692);
-;// CONCATENATED MODULE: ./node_modules/@actions/core/node_modules/@actions/http-client/lib/proxy.js
+;// CONCATENATED MODULE: ./node_modules/@actions/http-client/lib/proxy.js
 function getProxyUrl(reqUrl) {
     const usingSsl = reqUrl.protocol === 'https:';
     if (checkBypass(reqUrl)) {
@@ -40354,7 +40381,7 @@ class DecodedURL extends URL {
 var node_modules_tunnel = __nccwpck_require__(770);
 // EXTERNAL MODULE: ./node_modules/undici/index.js
 var undici = __nccwpck_require__(6752);
-;// CONCATENATED MODULE: ./node_modules/@actions/core/node_modules/@actions/http-client/lib/index.js
+;// CONCATENATED MODULE: ./node_modules/@actions/http-client/lib/index.js
 /* eslint-disable @typescript-eslint/no-explicit-any */
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -41051,7 +41078,7 @@ class lib_HttpClient {
 }
 const lowercaseKeys = (obj) => Object.keys(obj).reduce((c, k) => ((c[k.toLowerCase()] = obj[k]), c), {});
 //# sourceMappingURL=index.js.map
-;// CONCATENATED MODULE: ./node_modules/@actions/core/node_modules/@actions/http-client/lib/auth.js
+;// CONCATENATED MODULE: ./node_modules/@actions/http-client/lib/auth.js
 var auth_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -49069,8 +49096,8 @@ class context_Context {
     }
 }
 //# sourceMappingURL=context.js.map
-// EXTERNAL MODULE: ./node_modules/@actions/http-client/lib/index.js
-var lib = __nccwpck_require__(4844);
+// EXTERNAL MODULE: ./node_modules/@actions/github/node_modules/@actions/http-client/lib/index.js
+var lib = __nccwpck_require__(9659);
 ;// CONCATENATED MODULE: ./node_modules/@actions/github/lib/internal/utils.js
 var utils_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
