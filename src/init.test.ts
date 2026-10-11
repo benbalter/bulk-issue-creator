@@ -1,4 +1,11 @@
-import { afterEach, beforeEach, describe, expect, it } from '@jest/globals';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  jest,
+} from '@jest/globals';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
@@ -33,5 +40,23 @@ describe('initializeConfig', () => {
 
     expect(fs.readFileSync(templatePath, 'utf8')).toBe('custom template');
     expect(fs.readFileSync(dataPath, 'utf8')).toBe('custom data');
+  });
+
+  it('only reports files it created', () => {
+    const configPath = path.join(temporaryDirectory, 'config');
+    fs.mkdirSync(configPath);
+    fs.writeFileSync(path.join(configPath, 'data.csv'), 'custom data');
+    const log = jest.spyOn(console, 'log').mockImplementation(() => {});
+
+    initializeConfig(configPath);
+
+    const messages = log.mock.calls.map((call) => String(call[0]));
+    log.mockRestore();
+    expect(messages).toContain(
+      `Created ${path.join(configPath, 'template.md.mustache')}`,
+    );
+    expect(messages).not.toContain(
+      `Created ${path.join(configPath, 'data.csv')}`,
+    );
   });
 });

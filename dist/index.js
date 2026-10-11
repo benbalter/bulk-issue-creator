@@ -54744,9 +54744,15 @@ function initializeConfig(configPath) {
     external_fs_default().mkdirSync(configPath, { recursive: true });
     for (const file of files) {
         const filePath = external_path_default().join(configPath, file);
-        if (!external_fs_default().existsSync(filePath)) {
-            external_fs_default().writeFileSync(filePath, '');
+        // Create only if missing, in one step: checking existsSync first leaves a
+        // window where a file created in between would be overwritten.
+        try {
+            external_fs_default().writeFileSync(filePath, '', { flag: 'wx' });
             console.log(`Created ${filePath}`);
+        }
+        catch (error) {
+            if (error.code !== 'EEXIST')
+                throw error;
         }
     }
 }
