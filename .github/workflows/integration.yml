@@ -14,15 +14,35 @@ jobs:
         with:
           repository: benbalter/bulk-issue-creator-tests
 
+      # dist/ isn't committed to main (script/release builds it onto release tags),
+      # so test this commit's action by checking it out and building it here.
+      - name: Checkout action
+        uses: actions/checkout@v7
+        with:
+          path: bulk-issue-creator
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: bulk-issue-creator/package-lock.json
+
+      - name: Install and build action
+        working-directory: bulk-issue-creator
+        run: |
+          npm ci
+          npm run build
+
       - name: Dry run
-        uses: benbalter/bulk-issue-creator@main
+        uses: ./bulk-issue-creator
         env:
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           CSV_PATH: ./data.csv
           TEMPLATE_PATH: ./template-with-front-matter.md.mustache
 
       - name: Create bulk issues
-        uses: benbalter/bulk-issue-creator@main
+        uses: ./bulk-issue-creator
         env:
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           CSV_PATH: ./data.csv
@@ -30,7 +50,7 @@ jobs:
           WRITE: true
 
       - name: Create bulk issues using Liquid
-        uses: benbalter/bulk-issue-creator@main
+        uses: ./bulk-issue-creator
         env:
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           CSV_PATH: ./data.csv

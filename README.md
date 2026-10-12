@@ -16,7 +16,7 @@ Bulk opens batches of issues (or posts comments) across GitHub repositories base
 
 1. `git clone https://github.com/benbalter/bulk-issue-creator`
 2. `cd bulk-issue-creator`
-3. Run `npm ci` to install dependencies.
+3. Run `npm ci` to install dependencies and build the CLI.
 4. Run `script/run init` to create `./config/data.csv` and `./config/template.md.mustache`.
 5. Follow [the "Setup" instructions below](#setup) to customize the data file and template.
 6. Export the personal access token you create as the `GITHUB_TOKEN` environment variable.
