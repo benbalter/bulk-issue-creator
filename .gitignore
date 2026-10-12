@@ -3,3 +3,5 @@ config/*
 *.gem
 coverage/
 node_modules/
+# Built by `npm run build` (and by `npm install`); committed only on release tags, by script/release
+dist/

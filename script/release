@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+# Builds dist/ and tags a release without touching main.
+#
+# dist/ isn't committed to main. This script builds it from main's HEAD, commits
+# it on a detached commit, tags that commit vX.Y.Z, and moves the floating major
+# tag vX to it. It prints the push commands instead of pushing.
+#
+# Usage: script/release vX.Y.Z
+
+set -euo pipefail
+
+usage() {
+  echo "Usage: script/release vX.Y.Z (e.g. script/release v2.3.0)" >&2
+  exit 1
+}
+
+[ $# -eq 1 ] || usage
+version="$1"
+[[ "$version" =~ ^v([0-9]+)\.[0-9]+\.[0-9]+$ ]] || usage
+major="v${BASH_REMATCH[1]}"
+
+cd "$(git rev-parse --show-toplevel)"
+
+if [ -n "$(git status --porcelain)" ]; then
+  echo "Working tree isn't clean. Commit or stash your changes first." >&2
+  exit 1
+fi
+
+if [ "$(git symbolic-ref --short -q HEAD || true)" != "main" ]; then
+  echo "Check out main first (git switch main)." >&2
+  exit 1
+fi
+
+git fetch --quiet origin main
+if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main)" ]; then
+  echo "main isn't up to date with origin/main. Run git pull first." >&2
+  exit 1
+fi
+
+if git rev-parse -q --verify "refs/tags/$version" >/dev/null; then
+  echo "Tag $version already exists locally. If it's left over from an unpushed run, delete it (git tag -d $version) and rerun." >&2
+  exit 1
+fi
+if [ -n "$(git ls-remote --tags origin "refs/tags/$version")" ]; then
+  echo "Tag $version already exists on origin." >&2
+  exit 1
+fi
+
+npm ci
+npm run build
+
+# Commit dist/ on a detached HEAD so main never sees it, then return to main
+# whatever happens. The reset unstages dist/ if the commit failed (e.g. the
+# signing prompt timed out), so it can't leak into main's next commit.
+trap 'git reset --quiet; git switch --quiet main' EXIT
+git switch --quiet --detach
+git add --force dist
+git commit --quiet -m "Release $version" -m "Built dist/ from $(git rev-parse --short main)."
+release_sha="$(git rev-parse HEAD)"
+
+git tag -m "$version" "$version" "$release_sha"
+git tag -f -m "$version" "$major" "$release_sha"
+
+cat <<EOF
+
+Tagged $version and moved $major to $release_sha (not pushed).
+Spot-check it with: git show --stat $version
+
+To publish, push both tags:
+
+  git push origin $version
+  git push --force origin $major
+
+Then optionally create the GitHub release:
+
+  gh release create $version --verify-tag --generate-notes --title $version
+EOF
