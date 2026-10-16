@@ -3,11 +3,9 @@ import { getInput, warning, info, setFailed } from '@actions/core';
 import { parse } from 'csv-parse/sync';
 import { Issue, type IssueData } from './issue.js';
 import * as yaml from 'js-yaml';
-import { GitHub, getOctokitOptions } from '@actions/github/lib/utils';
 import camelCase from 'camelcase';
-import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods';
-import { type OctokitOptions } from '@octokit/core';
-import { throttling } from '@octokit/plugin-throttling';
+import { createForge, type Forge } from './forge.js';
+import { GitLabForge } from './gitlab-forge.js';
 
 interface Options {
   templatePath?: string;
@@ -16,6 +14,9 @@ interface Options {
   comment?: boolean;
   githubToken?: string;
   liquid?: boolean;
+  forge?: string;
+  gitlabToken?: string;
+  gitlabUrl?: string;
   [key: string]: string | boolean | undefined;
 }
 
@@ -27,11 +28,14 @@ export class BulkIssueCreator {
     'comment',
     'github_token',
     'liquid',
+    'forge',
+    'gitlab_token',
+    'gitlab_url',
   ];
   boolOptions = ['write', 'comment', 'liquid'];
   defaultTemplatePath = './config/template.md.mustache';
   defaultCsvPath = './config/data.csv';
-  _octokit: InstanceType<typeof GitHub> | undefined;
+  _forge: Forge | undefined;
   _issues: Issue[] | undefined;
   _fetchOverride: typeof fetch | undefined;
   options: Record<string, string | boolean | null> = {
@@ -41,6 +45,9 @@ export class BulkIssueCreator {
     comment: false,
     githubToken: null,
     liquid: false,
+    forge: 'github',
+    gitlabToken: null,
+    gitlabUrl: null,
   };
 
   // Assign options in the following order:
@@ -64,38 +71,20 @@ export class BulkIssueCreator {
   // Allow tests to inject a custom fetch implementation
   setFetchOverride(fetchFn: typeof fetch) {
     this._fetchOverride = fetchFn;
-    this._octokit = undefined; // Reset cached octokit
+    this._forge = undefined; // Reset cached forge
   }
 
-  get octokit() {
-    // Return cached octokit instance if it exists
-    if (this._octokit !== undefined) {
-      return this._octokit;
+  get forge(): Forge {
+    if (this._forge === undefined) {
+      this._forge = createForge({
+        forge: this.options.forge as string | null,
+        githubToken: this.options.githubToken as string | null,
+        gitlabToken: this.options.gitlabToken as string | null,
+        gitlabUrl: this.options.gitlabUrl as string | null,
+        fetch: this._fetchOverride,
+      });
     }
-
-    const throttledOctokit = GitHub.plugin(throttling);
-
-    const octokitOptions: OctokitOptions = {
-      throttle: {
-        onRateLimit: () => {
-          warning('Hit rate limit, waiting to retry.');
-          return true;
-        },
-        onSecondaryRateLimit: () => {
-          warning('Hit secondary rate limit, waiting to retry.');
-          return true;
-        },
-      },
-      ...(this._fetchOverride
-        ? { request: { fetch: this._fetchOverride } }
-        : {}),
-    };
-
-    this._octokit = new throttledOctokit(
-      getOctokitOptions(this.options.githubToken as string, octokitOptions),
-    );
-
-    return this._octokit;
+    return this._forge;
   }
 
   get templatePath(): string {
@@ -138,6 +127,10 @@ export class BulkIssueCreator {
       write: this.write,
       comment: this.comment,
       liquid: this.options.liquid,
+      forge: this.forge.name,
+      ...(this.forge instanceof GitLabForge
+        ? { gitlabUrl: this.forge.host }
+        : {}),
     };
   }
 
@@ -160,7 +153,7 @@ export class BulkIssueCreator {
   }
 
   private async createIssues() {
-    let response: RestEndpointMethodTypes['issues']['create']['response'];
+    let url: string;
     let failures = 0;
 
     for (const issue of this.issues) {
@@ -175,11 +168,8 @@ export class BulkIssueCreator {
         continue;
       }
 
-      const [owner, repo] = issue.nwo;
       try {
-        response = await this.octokit.rest.issues.create({
-          owner,
-          repo,
+        url = await this.forge.createIssue(issue.repository, {
           title: issue.title,
           body: issue.body,
           labels: issue.labels,
@@ -196,14 +186,14 @@ export class BulkIssueCreator {
         }
         throw error;
       }
-      info(`Created issue ${response.data.html_url}`);
+      info(`Created issue ${url}`);
     }
 
     this.reportFailures(failures, 'issues');
   }
 
   private async createComments() {
-    let response: RestEndpointMethodTypes['issues']['createComment']['response'];
+    let url: string;
     let failures = 0;
 
     for (const issue of this.issues) {
@@ -218,14 +208,12 @@ export class BulkIssueCreator {
         continue;
       }
 
-      const [owner, repo] = issue.nwo;
       try {
-        response = await this.octokit.rest.issues.createComment({
-          owner,
-          repo,
-          issue_number: issue.number,
-          body: issue.body,
-        });
+        url = await this.forge.createComment(
+          issue.repository,
+          issue.number,
+          issue.body,
+        );
       } catch (error: unknown) {
         const err = error as { status?: number; message?: string };
         if (err.status !== undefined) {
@@ -237,16 +225,18 @@ export class BulkIssueCreator {
         }
         throw error;
       }
-      info(`Created comment ${response.data.html_url}`);
+      info(`Created comment ${url}`);
     }
 
     this.reportFailures(failures, 'comments');
   }
 
   private hasValidRepository(issue: Issue): boolean {
-    if (!issue.validRepository) {
+    if (!this.forge.isValidRepository(issue.repository)) {
+      const expected =
+        this.forge.name === 'GitLab' ? 'group/project' : 'owner/repo';
       warning(
-        `Invalid repository "${issue.repository}", expected owner/repo. Skipping...`,
+        `Invalid repository "${issue.repository}", expected ${expected}. Skipping...`,
       );
       return false;
     }
@@ -271,20 +261,16 @@ export class BulkIssueCreator {
     }
   }
 
-  async repoExists(nwo: string) {
-    const [owner, repo] = nwo.split('/');
+  async repoExists(repository: string) {
     try {
-      await this.octokit.rest.repos.get({
-        owner,
-        repo,
-      });
+      await this.forge.getRepository(repository);
     } catch (error: unknown) {
       const err = error as { status?: number };
       if (err.status !== undefined && err.status === 404) {
-        warning(`Repository ${nwo} does not exist. Skipping...`);
+        warning(`Repository ${repository} does not exist. Skipping...`);
         return false;
       } else if (err.status !== undefined && err.status === 401) {
-        warning(`Unauthorized access to repository ${nwo}. Skipping...`);
+        warning(`Unauthorized access to repository ${repository}. Skipping...`);
         return false;
       } else {
         throw error;
@@ -300,9 +286,9 @@ export class BulkIssueCreator {
 
   private async previewOutput() {
     info('Running in READ ONLY mode. Pass `write` variable to write.');
-    if (this.options.githubToken === null) {
+    if (!this.forge.hasToken) {
       info(
-        'Note: No GitHub token provided. Skipping repository existence check.',
+        `Note: No ${this.forge.name} token provided. Skipping repository existence check.`,
       );
     }
 
@@ -315,7 +301,7 @@ export class BulkIssueCreator {
       if (!this.hasValidRepository(issue)) {
         continue;
       }
-      if (this.options.githubToken !== null) {
+      if (this.forge.hasToken) {
         await this.repoExists(issue.repository);
       }
     }

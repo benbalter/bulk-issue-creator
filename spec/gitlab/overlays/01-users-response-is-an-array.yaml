@@ -1,0 +1,16 @@
+# GitLab's generated description declares GET /users as returning a single
+# user. The API returns a JSON array. (Overlay `update` merges, so remove the
+# old schema first.) Adapted from interforge's spec/gitlab/overlays.
+overlay: 1.0.0
+info:
+  title: GitLab user list is an array
+  version: 1.0.0
+actions:
+  - target: $.paths['/api/v4/users'].get.responses['200'].content['application/json'].schema
+    remove: true
+  - target: $.paths['/api/v4/users'].get.responses['200'].content['application/json']
+    update:
+      schema:
+        type: array
+        items:
+          $ref: '#/components/schemas/APIEntitiesUserBasic'

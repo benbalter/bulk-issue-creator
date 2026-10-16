@@ -1,0 +1,10 @@
+{
+  "$comment": "Pinned GitLab OpenAPI description and the operations bulk-issue-creator calls. Overlays in ./overlays are applied first. Run `npm run gitlab-types` after editing.",
+  "source": "https://gitlab.com/gitlab-org/gitlab/-/raw/v19.4.1-ee/doc/api/openapi/openapi_v3.yaml",
+  "operations": [
+    "GET /api/v4/users",
+    "GET /api/v4/projects/{id}",
+    "POST /api/v4/projects/{id}/issues",
+    "POST /api/v4/projects/{id}/issues/{noteable_id}/notes"
+  ]
+}

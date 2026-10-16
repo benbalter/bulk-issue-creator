@@ -10,7 +10,8 @@
     "build": "ncc build src/index.ts -o dist",
     "prepare": "npm run build",
     "smoketest": "node dist/index.js --help",
-    "all": "npm run fix && npm run test && npm run build && npm run smoketest"
+    "all": "npm run fix && npm run test && npm run build && npm run smoketest",
+    "gitlab-types": "node script/update-gitlab-types.mjs && prettier --write src/gitlab-openapi.ts"
   },
   "repository": {
     "type": "git",
@@ -38,6 +39,8 @@
     "jest": "^30.0.0",
     "markdown-table": "3.0.4",
     "node-fetch": "^3.0.0",
+    "openapi-format": "1.33.7",
+    "openapi-typescript": "7.13.0",
     "prettier": "^3.2.4",
     "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
@@ -55,7 +58,8 @@
     "csv-parse": "^7.0.0",
     "js-yaml": "^5.0.0",
     "liquidjs": "^10.27.2",
-    "mustache": "^4.2.0"
+    "mustache": "^4.2.0",
+    "openapi-fetch": "0.17.0"
   },
   "type": "commonjs",
   "bin": {
