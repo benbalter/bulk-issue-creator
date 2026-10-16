@@ -72,7 +72,8 @@ describe('BulkIssueCreator', () => {
       });
 
       it('should init with github token', () => {
-        expect(bulkIssueCreator.octokit).toBeDefined();
+        expect(bulkIssueCreator.forge.name).toEqual('GitHub');
+        expect(bulkIssueCreator.forge.hasToken).toEqual(true);
       });
     });
 
@@ -105,7 +106,8 @@ describe('BulkIssueCreator', () => {
       });
 
       it('should init with github token', () => {
-        expect(bulkIssueCreator.octokit).toBeDefined();
+        expect(bulkIssueCreator.forge.name).toEqual('GitHub');
+        expect(bulkIssueCreator.forge.hasToken).toEqual(true);
       });
     });
   });

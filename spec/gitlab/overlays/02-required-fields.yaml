@@ -1,0 +1,18 @@
+# The generated description marks no property as required. Declare the ones
+# bulk-issue-creator reads, so the generated types don't make them optional.
+# Adapted from interforge's spec/gitlab/overlays, which checked them against
+# live gitlab.com responses.
+overlay: 1.0.0
+info:
+  title: GitLab required fields
+  version: 1.0.0
+actions:
+  - target: $.components.schemas.APIEntitiesUserBasic
+    update:
+      required: [id, username, web_url]
+  - target: $.components.schemas.APIEntitiesIssue
+    update:
+      required: [id, iid, title, state, web_url]
+  - target: $.components.schemas.APIEntitiesNote
+    update:
+      required: [id, body]

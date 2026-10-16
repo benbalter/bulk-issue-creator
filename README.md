@@ -1,6 +1,6 @@
 # GitHub bulk issue creator
 
-Bulk opens batches of issues (or posts comments) across GitHub repositories based on a template and CSV of values. Think of it like "mail merge" for GitHub issues. It can be run locally, via Codespaces, or via GitHub Actions.
+Bulk opens batches of issues (or posts comments) across GitHub (or GitLab) repositories based on a template and CSV of values. Think of it like "mail merge" for GitHub issues. It can be run locally, via Codespaces, or via GitHub Actions.
 
 ## How it works
 
@@ -66,6 +66,16 @@ To run the tool with GitHub Actions instead of locally:
 
 6. Repeat step 5, changing the `false` text input to `true` in the final dialog to create issues.
 
+## Running against GitLab
+
+GitHub is the default. To open issues (or post comments) on GitLab instead:
+
+1. Create a [GitLab personal access token](https://docs.gitlab.com/user/profile/personal_access_tokens/) with the `api` scope and export it as `GITLAB_TOKEN`.
+2. Run with `--forge gitlab` (or `FORGE=gitlab`).
+3. For a self-managed instance, pass `--gitlab-url https://gitlab.example.com`. Inside GitLab CI it defaults to the instance running the job (`CI_SERVER_URL`).
+
+The `repository` column takes a project path, including nested groups (`group/subgroup/project`), or the project's full URL. The `issue_number` column is the issue's IID, the number shown in its URL. Assignees are GitLab usernames. GitLab Free keeps only one assignee per issue, so the tool warns when a row lists more.
+
 ## Setup
 
 1. Run `bulk-issue-creator init` or manually create a CSV file in `./config/data.csv`. The CSV must have columns for `repository` and `title` (for issues) or `issue_number` (for comments). All field names are case sensitive. You can also add any other columns you would like, which will be available to the template. It should look something like this:
@@ -96,12 +106,15 @@ Options can be passed as command-line arguments when running locally or via the 
 
 | Command line             | GitHub Actions `with:`  | GitHub Actions `env:`   | Description                                 |
 | ------------------------ | ----------------------- | ----------------------- | ------------------------------------------- |
-| --write                  | write: <boolean>        | WRITE: <boolean>        | Write issues to GitHub (default: false)     |
+| --write                  | write: <boolean>        | WRITE: <boolean>        | Write issues to the forge (default: false)  |
 | --comment                | comment: <boolean>      | COMMENT: <boolean>      | Create comments instead of issues           |
 | --template-path <string> | template_path: <string> | TEMPLATE_PATH: <string> | Path to the template file                   |
 | --csv-path <string>      | csv_path: <string>      | CSV_PATH: <string>      | Path to the CSV file                        |
 | --liquid                 | liquid: <boolean>       | LIQUID: <boolean>       | Use Liquid template engine (default: false) |
 | --github-token <string>  | github_token: <string>  | GITHUB_TOKEN: <string>  | GitHub Token for authenticating with GitHub |
+| --forge <string>         | forge: <string>         | FORGE: <string>         | github or gitlab (default: github)          |
+| --gitlab-token <string>  | gitlab_token: <string>  | GITLAB_TOKEN: <string>  | GitLab token for authenticating with GitLab |
+| --gitlab-url <string>    | gitlab_url: <string>    | GITLAB_URL: <string>    | GitLab URL (default: https://gitlab.com)    |
 
 #### Special fields
 

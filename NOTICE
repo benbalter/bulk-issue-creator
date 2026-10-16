@@ -1,0 +1,15 @@
+bulk-issue-creator is licensed under the MIT License (see LICENSE), except for
+the third-party material below, which keeps its upstream license.
+
+GitLab REST API OpenAPI description
+  Source:    https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/api/openapi/openapi_v3.yaml
+  Copyright: (c) 2011-present GitLab Inc.
+  License:   Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
+             https://creativecommons.org/licenses/by-sa/4.0/
+  Files:     spec/gitlab/overlays/*.yaml
+             src/gitlab-openapi.ts
+  Changes:   filtered to the operations bulk-issue-creator uses, patched with the
+             overlays in spec/gitlab/overlays, and converted to TypeScript types
+             by script/update-gitlab-types.mjs. These files are shared under
+             CC BY-SA 4.0. They are types only, so none of this material is
+             included in the built dist/ bundle.

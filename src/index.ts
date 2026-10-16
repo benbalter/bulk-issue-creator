@@ -8,14 +8,14 @@ import { setFailed } from '@actions/core';
 const program = new Command();
 program.name('bulk-issue-creator');
 program.description(
-  'Bulk opens batches of issues (or comments) across GitHub repositories based on a template and CSV of values.',
+  'Bulk opens batches of issues (or comments) across GitHub or GitLab repositories based on a template and CSV of values.',
 );
 program.usage('[options]');
 
 program
   .command('create', { isDefault: true })
   .description('Run the bulk issue creator to create issues or comments')
-  .option('-w, --write', 'Write issues to GitHub (default: false)')
+  .option('-w, --write', 'Write issues to the forge (default: false)')
   .option('-c, --comment', 'Create comments instead of issues')
   .option('-t, --template-path <string>', 'Path to the template file')
   .option('-d, --csv-path <string>', 'Path to the CSV file')
@@ -24,6 +24,12 @@ program
     '-g, --github-token <string>',
     'GitHub Token for authenticating with GitHub',
   )
+  .option('-f, --forge <string>', 'github or gitlab (default: github)')
+  .option(
+    '--gitlab-token <string>',
+    'GitLab token for authenticating with GitLab',
+  )
+  .option('--gitlab-url <string>', 'GitLab URL (default: https://gitlab.com)')
   .action(async (options) => {
     try {
       const bulkIssueCreator = new BulkIssueCreator(options);

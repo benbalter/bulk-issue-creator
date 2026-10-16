@@ -41,12 +41,6 @@ describe('Issue', () => {
     expect(issue.assignees).toEqual([]);
   });
 
-  it('should flag an invalid repository', () => {
-    expect(issue.validRepository).toEqual(true);
-    issue = new Issue({ ...data, repository: 'not-a-repo' }, template);
-    expect(issue.validRepository).toEqual(false);
-  });
-
   describe('with liquid', () => {
     it('should render the body using liquid', () => {
       const template = '{% assign hello = "Hello," %}{{ hello }} {{ name }}!';
@@ -79,6 +73,17 @@ describe('Issue', () => {
     issue = new Issue(dataWithUrl, template);
     const expected = 'owner/repo';
     expect(issue.repository).toEqual(expected);
+  });
+
+  it('should strip any forge URL, .git and trailing slashes', () => {
+    for (const repository of [
+      'https://gitlab.com/group/sub/project',
+      'https://gitlab.example.com/group/sub/project.git',
+      'https://gitlab.com/group/sub/project/',
+    ]) {
+      issue = new Issue({ ...data, repository }, template);
+      expect(issue.repository).toEqual('group/sub/project');
+    }
   });
 
   it('should return the issue number', () => {

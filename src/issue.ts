@@ -75,7 +75,12 @@ export class Issue {
       );
       return '';
     }
-    return this._data.repository.replace('https://github.com/', '');
+    // Accept full URLs from any forge, e.g. https://gitlab.com/group/project.git
+    return this._data.repository
+      .trim()
+      .replace(/^https?:\/\/[^/]+\//, '')
+      .replace(/\.git$/, '')
+      .replace(/\/+$/, '');
   }
 
   get number() {
@@ -84,11 +89,6 @@ export class Issue {
 
   get nwo(): string[] {
     return this.repository.split('/');
-  }
-
-  get validRepository(): boolean {
-    const nwo = this.nwo;
-    return nwo.length === 2 && nwo.every((part) => part !== '');
   }
 
   get data() {
