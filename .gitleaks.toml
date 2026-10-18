@@ -1,0 +1,9 @@
+# Keep gitleaks' default rules, but ignore known false positives in
+# third-party code that script/release bundles into dist/.
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Placeholder token in @actions/core's setSecret docs example"
+regexTarget = "match"
+regexes = ['''abc123xyz456''']
