@@ -257,6 +257,20 @@ describe('BulkIssueCreator', () => {
         );
       });
 
+      it('should fail before writing without a token', async () => {
+        const githubToken = process.env.GITHUB_TOKEN;
+        delete process.env.GITHUB_TOKEN;
+        process.env.INPUT_GITHUB_TOKEN = '';
+        sandbox.removeRoutes().clearHistory();
+        bulkIssueCreator = new BulkIssueCreator();
+        bulkIssueCreator.setFetchOverride(sandbox.fetchHandler);
+        await expect(bulkIssueCreator.run()).rejects.toThrow(
+          'No GitHub token provided. Pass --github-token or set GITHUB_TOKEN.',
+        );
+        expect(sandbox.callHistory.calls()).toHaveLength(0);
+        if (githubToken !== undefined) process.env.GITHUB_TOKEN = githubToken;
+      });
+
       it('Should handle request errors', async () => {
         sandbox.removeRoutes().clearHistory();
         sandbox.post('https://api.github.com/repos/owner/repo/issues', {

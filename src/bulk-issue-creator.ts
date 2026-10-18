@@ -144,6 +144,14 @@ export class BulkIssueCreator {
     this.ensurePathExists(this.templatePath);
     this.ensurePathExists(this.csvPath);
 
+    // Fail before any requests rather than once per row with the SDK's error
+    if (this.write && !this.forge.hasToken) {
+      const name = this.forge.name.toLowerCase();
+      throw new Error(
+        `No ${this.forge.name} token provided. Pass --${name}-token or set ${name.toUpperCase()}_TOKEN.`,
+      );
+    }
+
     if (this.readonly) {
       await this.previewOutput();
       return;
