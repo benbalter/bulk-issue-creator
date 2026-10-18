@@ -94,7 +94,9 @@ The `repository` column takes a project path, including nested groups (`group/su
 
 Templates (and issue titles) support the [Mustache syntax](https://mustache.github.io/mustache.5.html) syntax by default. Field names in the CSV should be lower case, and should use `_`s to separate multiple words `like_this`, instead of spaces.
 
-_Note: You can also use the slightly more advanced [Liquid templating system](https://liquidjs.com/tutorials/intro-to-liquid.html) by passing the `liquid` option (see below)._
+Titles are templates too, so a `title` column like `Update {{project}}` works, and the body template's `{{title}}` is the rendered title. A leading YAML front matter block (between `---` lines) is stripped from the body template.
+
+_Note: You can also use the slightly more advanced [Liquid templating system](https://liquidjs.com/tutorials/intro-to-liquid.html) for both titles and bodies by passing the `liquid` option (see below)._
 
 ### Advanced usage
 

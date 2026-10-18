@@ -47,12 +47,24 @@ describe('Issue', () => {
     expect(issue.data.title).toEqual('');
   });
 
+  it('should pass the rendered title to the body', () => {
+    issue = new Issue(data, 'Re: {{title}}');
+    expect(issue.body).toEqual('Re: Hello, GitHub Copilot!');
+  });
+
   describe('with liquid', () => {
     it('should render the body using liquid', () => {
       const template = '{% assign hello = "Hello," %}{{ hello }} {{ name }}!';
       issue = new Issue(data, template, true);
       const expected = 'Hello, GitHub Copilot!';
       expect(issue.body).toEqual(expected);
+    });
+
+    it('should render the title using liquid', () => {
+      const liquidData = { ...data, title: '{{ name | upcase }}' };
+      issue = new Issue(liquidData, 'Re: {{ title }}', true);
+      expect(issue.title).toEqual('GITHUB COPILOT');
+      expect(issue.body).toEqual('Re: GITHUB COPILOT');
     });
   });
 

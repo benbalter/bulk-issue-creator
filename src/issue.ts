@@ -42,24 +42,19 @@ export class Issue {
     if (!this._data.title) {
       return '';
     }
-    return mustache.render(
-      this._data.title,
-      this._data,
-      undefined,
-      mustacheConfig,
-    );
+    return this.render(this._data.title, this._data);
   }
 
+  // Templates that reference {{title}} get the rendered title, not the raw one
   get body() {
+    return this.render(this.template, { ...this._data, title: this.title });
+  }
+
+  private render(template: string, view: IssueData) {
     if (this.liquid === true) {
-      return liquid.parseAndRenderSync(this.template, this._data);
+      return liquid.parseAndRenderSync(template, view);
     }
-    return mustache.render(
-      this.template,
-      this._data,
-      undefined,
-      mustacheConfig,
-    );
+    return mustache.render(template, view, undefined, mustacheConfig);
   }
 
   get labels() {
