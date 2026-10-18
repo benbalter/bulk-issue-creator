@@ -4,7 +4,7 @@ Bulk issue (or comment) creator: a TypeScript CLI that also ships as a GitHub Ac
 
 ## Commands
 
-- `script/cibuild` is what CI runs: lint (eslint + `prettier --check .`, which covers Markdown), tests, build, a CLI smoke test, then fails if `README.md` or `action.yml` differ from what the code generates. Run it before committing.
+- `script/cibuild` is what CI runs: lint (`tsc --noEmit`, eslint, and `prettier --check .`, which covers Markdown), tests, build, a CLI smoke test, then fails if `README.md` or `action.yml` differ from what the code generates. Run it before committing.
 - `npm run all` does the same but rewrites files (`eslint --fix`, `prettier --write`) first.
 
 ## Generated files
