@@ -29,7 +29,7 @@ To run the tool with GitHub Actions instead of locally:
 
 1. Create a new repository (public or private)
 2. Follow [the "Setup" instructions below](#setup) to add the CSV and template to the repository.
-3. If you'd like to open issues in a repository other than the one containing the action, store a personal access token you create as the `PERSONAL_ACCESS_TOKEN` [Actions Secret](https://docs.github.com/en/actions/reference/encrypted-secrets) within the repository settings
+3. If you'd like to open issues in a repository other than the one containing the action, store a personal access token you create as the `PERSONAL_ACCESS_TOKEN` [Actions Secret](https://docs.github.com/en/actions/reference/encrypted-secrets) within the repository settings. Without one, the workflow below falls back to the built-in `GITHUB_TOKEN`, which can only open issues in its own repository.
 4. Create a `.github/workflows/bulk-issue-creator.yml` file with the following contents:
 
    ```yml
@@ -43,18 +43,22 @@ To run the tool with GitHub Actions instead of locally:
 
    name: Bulk issue creator
 
+   permissions:
+     contents: read
+     issues: write
+
    jobs:
      bulk_issue_creator:
        runs-on: ubuntu-latest
        name: Bulk Issue Creator
        steps:
          - name: Checkout template and data
-           uses: actions/checkout@v2
+           uses: actions/checkout@v7
          - name: Create bulk issues
            uses: benbalter/bulk-issue-creator@v2
            with:
              write: ${{ github.event.inputs.write }}
-             github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+             github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN || github.token }}
    ```
 
 5. Navigate to `Actions` -> `Bulk issue creator` -> `Run Workflow` and click `Run Workflow` to preview the output.
