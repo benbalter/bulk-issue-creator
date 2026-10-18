@@ -1,13 +1,12 @@
 import mustache from 'mustache';
 import { Liquid } from 'liquidjs';
-import * as core from '@actions/core';
 
 // Issues are Markdown, not HTML, so don't HTML-escape rendered values
 const mustacheConfig = { escape: (value: string) => value };
 const liquid = new Liquid();
 
 export interface IssueData {
-  title: string;
+  title?: string;
   labels?: string;
   assignees?: string;
   assignee?: string;
@@ -69,9 +68,6 @@ export class Issue {
 
   get repository(): string {
     if (!this._data.repository) {
-      core.warning(
-        'Repository not found in row: ' + JSON.stringify(this._data),
-      );
       return '';
     }
     // Accept full URLs from any forge, e.g. https://gitlab.com/group/project.git

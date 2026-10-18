@@ -1,3 +1,4 @@
+import { jest } from '@jest/globals';
 import { BulkIssueCreator } from './bulk-issue-creator.js';
 import { Issue, type IssueData } from './issue.js';
 import fetchMock from 'fetch-mock';
@@ -225,6 +226,23 @@ describe('BulkIssueCreator', () => {
       };
       const issue = new Issue(data, 'Hello {{name}}!');
       expect(bulkIssueCreator.issues).toEqual([issue]);
+    });
+
+    it('should warn once about a row without a repository', async () => {
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'bic-'));
+      const csvPath = path.join(dir, 'data.csv');
+      fs.writeFileSync(csvPath, 'title\nNo repository\n');
+      const write = jest.spyOn(process.stdout, 'write').mockReturnValue(true);
+      bulkIssueCreator = new BulkIssueCreator({ csvPath });
+      bulkIssueCreator.setFetchOverride(sandbox.fetchHandler);
+      await bulkIssueCreator.run();
+      const warnings = write.mock.calls
+        .map(([chunk]) => String(chunk))
+        .filter((chunk) => chunk.includes('::warning::'));
+      write.mockRestore();
+      expect(warnings).toHaveLength(1);
+      expect(warnings[0]).toContain('Repository not found in row');
+      fs.rmSync(dir, { recursive: true });
     });
 
     it('should run in preview mode', async () => {

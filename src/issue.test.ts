@@ -42,7 +42,7 @@ describe('Issue', () => {
   });
 
   it('should return an empty title when the row has none', () => {
-    issue = new Issue({ ...data, title: undefined } as IssueData, template);
+    issue = new Issue({ ...data, title: undefined }, template);
     expect(issue.title).toEqual('');
     expect(issue.data.title).toEqual('');
   });

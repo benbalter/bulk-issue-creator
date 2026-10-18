@@ -244,6 +244,10 @@ export class BulkIssueCreator {
   }
 
   private hasValidRepository(issue: Issue): boolean {
+    if (!issue.repository) {
+      warning(`Repository not found in row: ${JSON.stringify(issue._data)}`);
+      return false;
+    }
     if (!this.forge.isValidRepository(issue.repository)) {
       const expected =
         this.forge.name === 'GitLab' ? 'group/project' : 'owner/repo';
