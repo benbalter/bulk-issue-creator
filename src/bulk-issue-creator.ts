@@ -256,7 +256,13 @@ export class BulkIssueCreator {
 
   private get data(): IssueData[] {
     const csv = fs.readFileSync(this.csvPath, 'utf8');
-    return parse(csv, { columns: true }) as IssueData[];
+    // Excel's "CSV UTF-8" export adds a byte order mark, and editors often
+    // leave a trailing blank line
+    return parse(csv, {
+      columns: true,
+      bom: true,
+      skip_empty_lines: true,
+    }) as IssueData[];
   }
 
   private ensurePathExists(path: string) {

@@ -199,6 +199,21 @@ describe('BulkIssueCreator', () => {
       fs.rmSync(dir, { recursive: true });
     });
 
+    it('should ignore a byte order mark and blank lines in the CSV', () => {
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'bic-'));
+      const csvPath = path.join(dir, 'data.csv');
+      fs.writeFileSync(
+        csvPath,
+        '\uFEFFrepository,title\nowner/repo,Hello\n\nowner/repo,Bye\n\n',
+      );
+      bulkIssueCreator = new BulkIssueCreator({ csvPath });
+      expect(bulkIssueCreator.issues.map((issue) => issue.repository)).toEqual([
+        'owner/repo',
+        'owner/repo',
+      ]);
+      fs.rmSync(dir, { recursive: true });
+    });
+
     it('should return the issues', () => {
       const data: IssueData = {
         assignees: 'user1, user2',
