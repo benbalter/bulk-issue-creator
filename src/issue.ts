@@ -38,6 +38,10 @@ export class Issue {
   }
 
   get title() {
+    // Comment CSVs don't need a title column, and mustache throws on undefined
+    if (!this._data.title) {
+      return '';
+    }
     return mustache.render(
       this._data.title,
       this._data,

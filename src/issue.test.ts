@@ -41,6 +41,12 @@ describe('Issue', () => {
     expect(issue.assignees).toEqual([]);
   });
 
+  it('should return an empty title when the row has none', () => {
+    issue = new Issue({ ...data, title: undefined } as IssueData, template);
+    expect(issue.title).toEqual('');
+    expect(issue.data.title).toEqual('');
+  });
+
   describe('with liquid', () => {
     it('should render the body using liquid', () => {
       const template = '{% assign hello = "Hello," %}{{ hello }} {{ name }}!';
