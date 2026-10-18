@@ -39,7 +39,7 @@
     "jest": "^30.0.0",
     "markdown-table": "3.0.4",
     "node-fetch": "^3.0.0",
-    "openapi-format": "1.33.7",
+    "openapi-format": "1.33.10",
     "openapi-typescript": "7.13.0",
     "prettier": "^3.2.4",
     "ts-jest": "^29.1.2",
