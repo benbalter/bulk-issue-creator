@@ -7,6 +7,10 @@ import camelCase from 'camelcase';
 import { createForge, type Forge } from './forge.js';
 import { GitLabForge } from './gitlab-forge.js';
 
+// A leading YAML front matter block, which isn't part of the issue body
+const frontMatter =
+  /^---[ \t]*\r?\n(?:[\s\S]*?\r?\n)?(?:---|\.\.\.)[ \t]*(?:\r?\n|$)/;
+
 interface Options {
   templatePath?: string;
   csvPath?: string;
@@ -108,7 +112,7 @@ export class BulkIssueCreator {
   }
 
   get template() {
-    return fs.readFileSync(this.templatePath, 'utf8');
+    return fs.readFileSync(this.templatePath, 'utf8').replace(frontMatter, '');
   }
 
   get issues(): Issue[] {

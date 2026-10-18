@@ -174,6 +174,31 @@ describe('BulkIssueCreator', () => {
       expect(bulkIssueCreator.template).toEqual(expected);
     });
 
+    it('should strip front matter from the template', () => {
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'bic-'));
+      const templatePath = path.join(dir, 'template.md');
+      for (const contents of [
+        '---\nSome: Front Matter\n---\n\nHello {{name}}!',
+        '---\r\nSome: Front Matter\r\n...\r\nHello {{name}}!',
+        '---\n---\nHello {{name}}!',
+      ]) {
+        fs.writeFileSync(templatePath, contents);
+        bulkIssueCreator = new BulkIssueCreator({ templatePath });
+        expect(bulkIssueCreator.template.trim()).toEqual('Hello {{name}}!');
+      }
+      fs.rmSync(dir, { recursive: true });
+    });
+
+    it('should keep a horizontal rule that is not front matter', () => {
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'bic-'));
+      const templatePath = path.join(dir, 'template.md');
+      const contents = 'Hello {{name}}!\n\n---\n\nBye\n';
+      fs.writeFileSync(templatePath, contents);
+      bulkIssueCreator = new BulkIssueCreator({ templatePath });
+      expect(bulkIssueCreator.template).toEqual(contents);
+      fs.rmSync(dir, { recursive: true });
+    });
+
     it('should return the issues', () => {
       const data: IssueData = {
         assignees: 'user1, user2',
